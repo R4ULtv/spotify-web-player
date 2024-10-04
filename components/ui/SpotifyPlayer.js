@@ -34,7 +34,7 @@ export default function SpotifyPlayer() {
   return (
     <Transition show={!!currentTrack} appear as={Fragment}>
       {currentTrack && (
-        <div className="absolute inset-0 flex gap-3 flex-col items-center justify-center transition duration-150 data-[closed]:scale-50 data-[closed]:opacity-0">
+        <div className="absolute inset-2 flex gap-3 flex-col items-center justify-center transition duration-150 data-[closed]:scale-50 data-[closed]:opacity-0">
           <div className="max-w-sm w-full bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl">
             <div
               className={`flex items-center gap-3 ${
