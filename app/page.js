@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <SessionProvider refetchOnWindowFocus={false}>
       <SpotifyProvider>
-        <main className="relative w-full h-screen z-10">
+        <main className="relative w-svw h-svh z-10">
           <Navigation />
           <SpotifyPlayer />
         </main>
