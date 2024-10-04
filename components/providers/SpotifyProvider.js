@@ -15,11 +15,69 @@ import { useSession } from "next-auth/react";
 const SpotifyContext = createContext();
 
 export const SpotifyProvider = ({ children }) => {
-  const { data: session } = useSession()
+  const { data: session } = useSession();
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentPalette, setCurrentPalette] = useState(null);
+  const [playerMode, setPlayerMode] = useState("ds");
+
+  const playerModes = ["ds", "mb", "tv"];
+
+  const toggleShuffle = useCallback(async () => {
+    if (!currentTrack) return;
+    try {
+      const res = await fetch(
+        `https://api.spotify.com/v1/me/player/shuffle?state=${!currentTrack.shuffleState}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+        }
+      );
+      if (res.status === 403) {
+        throw new Error("Spotify Premium is REQUIRED to toggle shuffle");
+      }
+      if (!res.ok) {
+        throw new Error("Failed to toggle shuffle");
+      }
+      setIsPlaying(!isPlaying);
+    } catch (error) {
+      toast.error("Failed to toggle shuffle:", { description: error.message });
+      console.error("Error toggling shuffle:", error);
+    }
+  }, [currentTrack, isPlaying]);
+
+  const rotateRepeateState = useCallback(async () => {
+    if (!currentTrack) return;
+    const state = ["off", "context", "track"];
+    try {
+      const res = await fetch(
+        `https://api.spotify.com/v1/me/player/repeat?state=${
+          state[(state.indexOf(currentTrack.repeatState) + 1) % state.length]
+        }`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+        }
+      );
+      if (res.status === 403) {
+        throw new Error("Spotify Premium is REQUIRED to change repeat state");
+      }
+      if (!res.ok) {
+        throw new Error("Failed to change repeat state");
+      }
+      setIsPlaying(!isPlaying);
+    } catch (error) {
+      toast.error("Failed to change repeat state:", {
+        description: error.message,
+      });
+      console.error("Error changing repeat state:", error);
+    }
+  }, [currentTrack, isPlaying]);
 
   const togglePlay = useCallback(async () => {
     if (!currentTrack) return;
@@ -92,14 +150,11 @@ export const SpotifyProvider = ({ children }) => {
 
   const fetchCurrentTrack = useCallback(async () => {
     try {
-      const res = await fetch(
-        "https://api.spotify.com/v1/me/player/currently-playing",
-        {
-          headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
-        }
-      );
+      const res = await fetch("https://api.spotify.com/v1/me/player", {
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      });
 
       if (res.status === 204) {
         setCurrentTrack(null);
@@ -126,6 +181,8 @@ export const SpotifyProvider = ({ children }) => {
             link: data.item.album.external_urls.spotify,
           },
           isPlaying: data.is_playing,
+          repeatState: data.repeat_state,
+          shuffleState: data.shuffle_state,
           progressMs: data.progress_ms,
           durationMs: data.item.duration_ms,
           explicit: data.item.explicit,
@@ -164,21 +221,22 @@ export const SpotifyProvider = ({ children }) => {
     }
   }, [fetchCurrentTrack]);
 
-  useEffect(() => {
-    const handleNewSong = async () => {
-      if (currentTrack.durationMs - currentTrack.progressMs < 5000) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, currentTrack.durationMs - currentTrack.progressMs)
-        );
-        fetchCurrentTrack();
-      }
-    };
-    if (session?.accessToken) {
-      if (currentTrack && isPlaying) {
-        handleNewSong();
-      }
-    }
-  }, [currentTrack, isPlaying]);
+  // TODO: improve this code
+  // useEffect(() => {
+  //   const handleNewSong = async () => {
+  //     if (currentTrack.durationMs - currentTrack.progressMs < 5000) {
+  //       await new Promise((resolve) =>
+  //         setTimeout(resolve, currentTrack.durationMs - currentTrack.progressMs)
+  //       );
+  //       fetchCurrentTrack();
+  //     }
+  //   };
+  //   if (session?.accessToken) {
+  //     if (currentTrack && isPlaying) {
+  //       handleNewSong();
+  //     }
+  //   }
+  // }, [currentTrack, isPlaying]);
 
   useEffect(() => {
     fetchCurrentPalette();
@@ -211,9 +269,12 @@ export const SpotifyProvider = ({ children }) => {
       progress,
       currentPalette,
       progressPercentage,
+      playerMode,
       togglePlay,
       skipToPrevious,
       skipToNext,
+      toggleShuffle,
+      rotateRepeateState,
     }),
     [
       currentTrack,
@@ -221,9 +282,12 @@ export const SpotifyProvider = ({ children }) => {
       progress,
       currentPalette,
       progressPercentage,
+      playerMode,
       togglePlay,
       skipToPrevious,
       skipToNext,
+      toggleShuffle,
+      rotateRepeateState,
     ]
   );
 

@@ -3,14 +3,10 @@
 import { Button, Transition } from "@headlessui/react";
 import {
   ArrowRightEndOnRectangleIcon,
-  BackwardIcon,
   Bars3Icon,
-  ForwardIcon,
-  PauseIcon,
-  PlayIcon,
 } from "@heroicons/react/16/solid";
 import { signOut } from "next-auth/react";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 
 import { useSpotify } from "@/components/providers/SpotifyProvider";
 import {
@@ -21,8 +17,7 @@ import {
 } from "@/components/ui/tooltip";
 
 export default function Navigation() {
-  const { currentTrack, isPlaying, togglePlay, skipToNext, skipToPrevious } =
-    useSpotify();
+  const { currentTrack } = useSpotify();
 
   const nav = [
     {
@@ -57,30 +52,6 @@ export default function Navigation() {
       label: "Github Repo",
       onClick: () =>
         window.open("https://github.com/R4ULtv/spotify-web-player/", "_blank"),
-      divedeAfter: true,
-    },
-    {
-      icon: (
-        <BackwardIcon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
-      ),
-      label: "Previous (Premium Only)",
-      onClick: () => skipToPrevious(),
-    },
-    {
-      icon: isPlaying ? (
-        <PauseIcon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
-      ) : (
-        <PlayIcon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
-      ),
-      label: isPlaying ? "Pause (Premium Only)" : "Play (Premium Only)",
-      onClick: () => togglePlay(),
-    },
-    {
-      icon: (
-        <ForwardIcon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
-      ),
-      label: "Next (Premium Only)",
-      onClick: () => skipToNext(),
       divedeAfter: true,
     },
     {
