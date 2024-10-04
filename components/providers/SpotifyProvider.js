@@ -138,6 +138,23 @@ export const SpotifyProvider = ({ children, session }) => {
   }, [fetchCurrentTrack]);
 
   useEffect(() => {
+    const handleNewSong = async () => {
+      if (currentTrack?.durationMs - currentTrack?.progressMs < 5000) {
+        await new Promise((resolve) =>
+          setTimeout(
+            resolve,
+            currentTrack.durationMs - currentTrack.progressMs + 100
+          )
+        );
+        fetchCurrentTrack();
+      }
+    };
+    if (session?.accessToken) {
+      handleNewSong();
+    }
+  }, [currentTrack]);
+
+  useEffect(() => {
     fetchCurrentPalette();
   }, [fetchCurrentPalette]);
 
