@@ -35,6 +35,34 @@ export const SpotifyProvider = ({ children, session }) => {
     }
   }, [currentTrack, isPlaying]);
 
+  const skipToPrevious = useCallback(async () => {
+    if (!currentTrack) return;
+    try {
+      const res = await fetch("https://api.spotify.com/v1/me/player/previous", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching current track:", error);
+    }
+  }, [currentTrack]);
+
+  const skipToNext = useCallback(async () => {
+    if (!currentTrack) return;
+    try {
+      const res = await fetch("https://api.spotify.com/v1/me/player/next", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching current track:", error);
+    }
+  }, [currentTrack]);
+
   const fetchCurrentTrack = useCallback(async () => {
     try {
       const res = await fetch(
@@ -141,6 +169,8 @@ export const SpotifyProvider = ({ children, session }) => {
       currentPalette,
       progressPercentage,
       togglePlay,
+      skipToPrevious,
+      skipToNext,
     }),
     [
       currentTrack,
@@ -149,6 +179,8 @@ export const SpotifyProvider = ({ children, session }) => {
       currentPalette,
       progressPercentage,
       togglePlay,
+      skipToPrevious,
+      skipToNext,
     ]
   );
 

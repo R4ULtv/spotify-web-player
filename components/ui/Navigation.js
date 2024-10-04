@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/tooltip";
 
 export default function Navigation({ session }) {
-  const { currentTrack, isPlaying, togglePlay } = useSpotify();
+  const { currentTrack, isPlaying, togglePlay, skipToNext, skipToPrevious } = useSpotify();
   const [isShowNav, setIsOpen] = useState(true);
 
   const nav = [
@@ -63,7 +63,8 @@ export default function Navigation({ session }) {
       icon: (
         <BackwardIcon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
       ),
-      label: "Backward",
+      label: "Previous",
+      onClick: () => skipToPrevious(),
     },
     {
       icon: isPlaying ? (
@@ -78,7 +79,8 @@ export default function Navigation({ session }) {
       icon: (
         <ForwardIcon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
       ),
-      label: "Forward",
+      label: "Next",
+      onClick: () => skipToNext(),
       divedeAfter: true,
     },
     {
