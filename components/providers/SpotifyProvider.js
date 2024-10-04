@@ -44,6 +44,9 @@ export const SpotifyProvider = ({ children, session }) => {
           Authorization: `Bearer ${session?.accessToken}`,
         },
       });
+      if (res.ok) {
+        fetchCurrentTrack();
+      }
     } catch (error) {
       console.error("Error fetching current track:", error);
     }
@@ -58,6 +61,9 @@ export const SpotifyProvider = ({ children, session }) => {
           Authorization: `Bearer ${session?.accessToken}`,
         },
       });
+      if (res.ok) {
+        fetchCurrentTrack();
+      }
     } catch (error) {
       console.error("Error fetching current track:", error);
     }
@@ -141,10 +147,7 @@ export const SpotifyProvider = ({ children, session }) => {
     const handleNewSong = async () => {
       if (currentTrack?.durationMs - currentTrack?.progressMs < 5000) {
         await new Promise((resolve) =>
-          setTimeout(
-            resolve,
-            currentTrack.durationMs - currentTrack.progressMs
-          )
+          setTimeout(resolve, currentTrack.durationMs - currentTrack.progressMs)
         );
         fetchCurrentTrack();
       }
