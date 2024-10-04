@@ -1,5 +1,6 @@
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
+import { Toaster } from "sonner";
 
 export const metadata = {
   title: "Spotify Web Player",
@@ -13,6 +14,14 @@ export default function RootLayout({ children }) {
         className={`${GeistSans.className} bg-zinc-900 selection:bg-zinc-600/25`}
       >
         {children}
+
+        <Toaster
+          toastOptions={{
+            classNames: {
+              toast: "bg-zinc-900/50 border-0 text-zinc-200 gap-2",
+            },
+          }}
+        />
       </body>
     </html>
   );
