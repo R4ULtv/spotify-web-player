@@ -143,7 +143,7 @@ export const SpotifyProvider = ({ children, session }) => {
         await new Promise((resolve) =>
           setTimeout(
             resolve,
-            currentTrack.durationMs - currentTrack.progressMs + 100
+            currentTrack.durationMs - currentTrack.progressMs
           )
         );
         fetchCurrentTrack();
