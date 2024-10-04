@@ -1,4 +1,5 @@
 "use client";
+
 import React, {
   createContext,
   useState,
@@ -8,6 +9,7 @@ import React, {
   useMemo,
 } from "react";
 import { extractColors } from "extract-colors";
+import { toast } from "sonner";
 
 const SpotifyContext = createContext();
 
@@ -29,9 +31,16 @@ export const SpotifyProvider = ({ children, session }) => {
           },
         }
       );
+      if (res.status === 403) {
+        throw new Error("Spotify Premium is REQUIRED to toggle play/pause");
+      }
+      if (!res.ok) {
+        throw new Error("Failed to toggle play");
+      }
       setIsPlaying(!isPlaying);
     } catch (error) {
-      console.error("Error fetching current track:", error);
+      toast.error("Failed to toggle play:", { description: error.message });
+      console.error("Error toggling play/pause:", error);
     }
   }, [currentTrack, isPlaying]);
 
@@ -44,11 +53,17 @@ export const SpotifyProvider = ({ children, session }) => {
           Authorization: `Bearer ${session?.accessToken}`,
         },
       });
-      if (res.ok) {
-        fetchCurrentTrack();
+      if (res.status === 403) {
+        throw new Error("Spotify Premium is REQUIRED to skip to previous.");
+      }
+      if (!res.ok) {
+        throw new Error("Failed to skip to previous.");
       }
     } catch (error) {
-      console.error("Error fetching current track:", error);
+      toast.error("Failed to skip to previous:", {
+        description: error.message,
+      });
+      console.error("Error skipping to previous:", error);
     }
   }, [currentTrack]);
 
@@ -61,11 +76,15 @@ export const SpotifyProvider = ({ children, session }) => {
           Authorization: `Bearer ${session?.accessToken}`,
         },
       });
-      if (res.ok) {
-        fetchCurrentTrack();
+      if (res.status === 403) {
+        throw new Error("Spotify Premium is REQUIRED to skip to next.");
+      }
+      if (!res.ok) {
+        throw new Error("Failed to skip to next");
       }
     } catch (error) {
-      console.error("Error fetching current track:", error);
+      toast.error("Failed to skip to next:", { description: error.message });
+      console.error("Error skipping to next:", error);
     }
   }, [currentTrack]);
 
@@ -145,7 +164,7 @@ export const SpotifyProvider = ({ children, session }) => {
 
   useEffect(() => {
     const handleNewSong = async () => {
-      if (currentTrack?.durationMs - currentTrack?.progressMs < 5000) {
+      if (currentTrack.durationMs - currentTrack.progressMs < 5000) {
         await new Promise((resolve) =>
           setTimeout(resolve, currentTrack.durationMs - currentTrack.progressMs)
         );
@@ -153,9 +172,11 @@ export const SpotifyProvider = ({ children, session }) => {
       }
     };
     if (session?.accessToken) {
-      handleNewSong();
+      if (currentTrack && isPlaying) {
+        handleNewSong();
+      }
     }
-  }, [currentTrack]);
+  }, [currentTrack, isPlaying]);
 
   useEffect(() => {
     fetchCurrentPalette();
