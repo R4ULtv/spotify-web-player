@@ -10,10 +10,12 @@ import React, {
 } from "react";
 import { extractColors } from "extract-colors";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 const SpotifyContext = createContext();
 
-export const SpotifyProvider = ({ children, session }) => {
+export const SpotifyProvider = ({ children }) => {
+  const { data: session } = useSession()
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);

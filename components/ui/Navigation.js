@@ -20,10 +20,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export default function Navigation({ session }) {
+export default function Navigation() {
   const { currentTrack, isPlaying, togglePlay, skipToNext, skipToPrevious } =
     useSpotify();
-  const [isShowNav, setIsOpen] = useState(true);
 
   const nav = [
     {
@@ -101,7 +100,7 @@ export default function Navigation({ session }) {
 
   return (
     <TooltipProvider>
-      <Transition show={!!isShowNav}>
+      <Transition show={true}>
         <div className="absolute transform w-min transition duration-150 ease-in-out data-[closed]:opacity-0 data-[closed]:scale-50 bottom-3 left-1/2 -translate-x-1/2 z-10">
           <div className="rounded-full bg-zinc-900/25 backdrop-blur-xl border border-zinc-500/25 text-zinc-200 shadow flex items-center gap-1 p-1 ">
             {nav.map((e, key) => (
@@ -110,7 +109,7 @@ export default function Navigation({ session }) {
                   <TooltipTrigger asChild>
                     <Button
                       onClick={e.onClick}
-                      className="p-2 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25 transition-colors duration-75 rounded-full outline-none relative group"
+                      className="p-2 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25 transition-all duration-75 rounded-full outline-none relative group"
                     >
                       {e.icon}
                     </Button>
