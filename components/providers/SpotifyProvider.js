@@ -21,7 +21,7 @@ export const SpotifyProvider = ({ children }) => {
   const [progress, setProgress] = useState(0);
   const [currentPalette, setCurrentPalette] = useState(null);
   const [fullScreen, setFullScreen] = useState(false);
-  const [playerMode, setPlayerMode] = useState("ds");
+  const [playerMode, setPlayerMode] = useState("mb");
 
   const playerModes = ["ds", "mb", "tv"];
 
