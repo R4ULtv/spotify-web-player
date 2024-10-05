@@ -30,7 +30,6 @@ export default function SpotifyPlayer() {
     togglePlay,
     toggleShuffle,
     rotateRepeateState,
-    playerMode,
     toggleFullScreen,
     fullScreen,
   } = useSpotify();
@@ -38,41 +37,19 @@ export default function SpotifyPlayer() {
   return (
     <Transition show={!!currentTrack} appear as={Fragment}>
       {currentTrack && (
-        <div
-          className={`absolute flex gap-3 flex-col items-center justify-center transition duration-150 data-[closed]:scale-50 data-[closed]:opacity-0 ${
-            playerMode === "tv" ? "inset-1/8" : "inset-2"
-          }`}
-        >
-          <div
-            className={`bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl ${
-              playerMode === "tv" ? "w-full" : "max-w-sm w-full"
-            }`}
-          >
-            <div
-              className={`flex items-center gap-3 ${
-                playerMode === "mb" ? "flex-col" : "flex-row"
-              }`}
-            >
+        <div className="absolute flex gap-3 flex-col items-center justify-center transition duration-150 data-[closed]:scale-50 data-[closed]:opacity-0 inset-2">
+          <div className="bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl max-w-md w-full">
+            <div className="flex items-center gap-3 flex-col md:flex-row">
               <Button
                 onClick={toggleFullScreen}
-                className={`relative shrink-0 h-full group ${
-                  playerMode === "tv" && "w-1/3"
-                }`}
+                className="relative shrink-0 w-full md:w-auto group"
               >
                 <img
                   alt="Album Cover"
-                  src={
-                    playerMode === "ds"
-                      ? currentTrack.album.images[2].url
-                      : currentTrack.album.images[0].url
-                  }
-                  className={`rounded-xl transition-all duration-300 ${
-                    playerMode === "ds"
-                      ? "size-16"
-                      : playerMode === "tv"
-                      ? "w-full"
-                      : "w-full"
-                  }`}
+                  src={currentTrack.album.images[0].url}
+                  srcSet={`${currentTrack.album.images[1].url} 1x, ${currentTrack.album.images[0].url} 2x`}
+                  loading="lazy"
+                  className="rounded-xl transition-all duration-300 w-full md:w-auto md:size-24"
                 />
                 <div className="invisible group-data-[hover]:visible duration-150 transition flex items-center justify-center absolute inset-0 bg-transparent group-data-[hover]:bg-zinc-900/50 text-zinc-200 rounded-xl">
                   {fullScreen ? (
@@ -83,36 +60,18 @@ export default function SpotifyPlayer() {
                 </div>
               </Button>
 
-              <div
-                className={`truncate w-full ${
-                  playerMode === "mb" ? "self-start" : "self-center"
-                }`}
-              >
+              <div className="truncate w-full self-start md:self-center">
                 <a
                   href={currentTrack.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`truncate text-zinc-100 hover:underline underline-offset-2 ${
-                    playerMode === "ds"
-                      ? "text-base font-bold"
-                      : playerMode === "tv"
-                      ? "text-7xl font-black"
-                      : "text-lg font-semibold"
-                  }`}
+                  className="truncate text-zinc-100 hover:underline underline-offset-2 text-lg font-semibold md:font-bold"
                 >
                   {currentTrack.name}
                 </a>
-                <div
-                  className={`flex items-center font-medium truncate space-x-1 text-zinc-300 ${
-                    playerMode === "tv" ? "text-2xl" : "text-sm"
-                  }`}
-                >
+                <div className="flex items-center font-medium truncate space-x-1 text-zinc-300 text-base">
                   {currentTrack.explicit && (
-                    <span
-                      className={`px-1.5 py-0.5 text-zinc-300 bg-zinc-500/25 rounded w-min select-none ${
-                        playerMode === "tv" ? "text-base" : "text-xs"
-                      }`}
-                    >
+                    <span className="px-1.5 py-0.5 text-zinc-300 bg-zinc-500/25 rounded w-min select-none text-sm">
                       E
                     </span>
                   )}
@@ -132,11 +91,7 @@ export default function SpotifyPlayer() {
                     </Fragment>
                   ))}
                 </div>
-                <div
-                  className={`font-medium truncate text-zinc-300 ${
-                    playerMode === "tv" ? "text-2xl" : "text-sm"
-                  }`}
-                >
+                <div className="font-medium truncate text-zinc-300 text-sm">
                   <a
                     className="hover:underline underline-offset-2"
                     href={currentTrack.album.link}
