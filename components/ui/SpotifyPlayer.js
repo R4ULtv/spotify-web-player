@@ -38,16 +38,26 @@ export default function SpotifyPlayer() {
   return (
     <Transition show={!!currentTrack} appear as={Fragment}>
       {currentTrack && (
-        <div className="absolute inset-2 flex gap-3 flex-col items-center justify-center transition duration-150 data-[closed]:scale-50 data-[closed]:opacity-0">
-          <div className="max-w-sm w-full bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl">
+        <div
+          className={`absolute flex gap-3 flex-col items-center justify-center transition duration-150 data-[closed]:scale-50 data-[closed]:opacity-0 ${
+            playerMode === "tv" ? "inset-1/8" : "inset-2"
+          }`}
+        >
+          <div
+            className={`bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl ${
+              playerMode === "tv" ? "w-full" : "max-w-sm w-full"
+            }`}
+          >
             <div
               className={`flex items-center gap-3 ${
-                playerMode === "ds" ? "flex-row" : "flex-col"
+                playerMode === "mb" ? "flex-col" : "flex-row"
               }`}
             >
               <Button
                 onClick={toggleFullScreen}
-                className="relative shrink-0 group"
+                className={`relative shrink-0 h-full group ${
+                  playerMode === "tv" && "w-1/3"
+                }`}
               >
                 <img
                   alt="Album Cover"
@@ -57,10 +67,14 @@ export default function SpotifyPlayer() {
                       : currentTrack.album.images[0].url
                   }
                   className={`rounded-xl transition-all duration-300 ${
-                    playerMode === "ds" ? "size-16" : "w-full"
+                    playerMode === "ds"
+                      ? "size-16"
+                      : playerMode === "tv"
+                      ? "w-full"
+                      : "w-full"
                   }`}
                 />
-                <div className="invisible group-data-[hover]:visible duration-150 transition flex items-center justify-center absolute inset-0 bg-zinc-900/50 text-zinc-200 rounded-xl">
+                <div className="invisible group-data-[hover]:visible duration-150 transition flex items-center justify-center absolute inset-0 bg-transparent group-data-[hover]:bg-zinc-900/50 text-zinc-200 rounded-xl">
                   {fullScreen ? (
                     <ArrowsPointingInIcon className="size-5" />
                   ) : (
@@ -71,22 +85,34 @@ export default function SpotifyPlayer() {
 
               <div
                 className={`truncate w-full ${
-                  playerMode === "ds" ? "self-center" : "self-start"
+                  playerMode === "mb" ? "self-start" : "self-center"
                 }`}
               >
                 <a
                   href={currentTrack.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`font-bold truncate text-zinc-100 hover:underline underline-offset-2 ${
-                    playerMode === "ds" ? "text-base" : "text-lg"
+                  className={`truncate text-zinc-100 hover:underline underline-offset-2 ${
+                    playerMode === "ds"
+                      ? "text-base font-bold"
+                      : playerMode === "tv"
+                      ? "text-7xl font-black"
+                      : "text-lg font-semibold"
                   }`}
                 >
                   {currentTrack.name}
                 </a>
-                <div className="font-medium text-sm truncate space-x-1 text-zinc-300">
+                <div
+                  className={`flex items-center font-medium truncate space-x-1 text-zinc-300 ${
+                    playerMode === "tv" ? "text-2xl" : "text-sm"
+                  }`}
+                >
                   {currentTrack.explicit && (
-                    <span className="text-xs px-1.5 py-0.5 text-zinc-300 bg-zinc-500/25 rounded w-min select-none">
+                    <span
+                      className={`px-1.5 py-0.5 text-zinc-300 bg-zinc-500/25 rounded w-min select-none ${
+                        playerMode === "tv" ? "text-base" : "text-xs"
+                      }`}
+                    >
                       E
                     </span>
                   )}
@@ -106,7 +132,11 @@ export default function SpotifyPlayer() {
                     </Fragment>
                   ))}
                 </div>
-                <div className="font-medium text-sm truncate text-zinc-300">
+                <div
+                  className={`font-medium truncate text-zinc-300 ${
+                    playerMode === "tv" ? "text-2xl" : "text-sm"
+                  }`}
+                >
                   <a
                     className="hover:underline underline-offset-2"
                     href={currentTrack.album.link}
