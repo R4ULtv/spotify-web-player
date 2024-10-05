@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import { Fragment, useMemo, useRef, useEffect, useState } from "react";
 import { useSpotify } from "@/components/providers/SpotifyProvider";
 import {
   ArrowsPointingInIcon,
@@ -11,13 +11,177 @@ import {
   PauseIcon,
   PlayIcon,
 } from "@heroicons/react/20/solid";
+import { InfiniteSlider } from "../animations/infinite-slider";
 
-function formatTime(ms) {
+const formatTime = (ms) => {
   const seconds = Math.floor(ms / 1000);
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-}
+};
+
+const ShuffleIcon = ({ shuffleState }) => (
+  <svg
+    className={`size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75 ${
+      shuffleState && "stroke-zinc-200"
+    }`}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22" />
+    <path d="m18 2 4 4-4 4" />
+    <path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2" />
+    <path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8" />
+    <path d="m18 14 4 4-4 4" />
+  </svg>
+);
+
+const RepeatIcon = ({ repeatState }) => (
+  <svg
+    className={`size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75 ${
+      repeatState !== "off" && "stroke-zinc-200"
+    }`}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="m17 2 4 4-4 4" />
+    <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+    <path d="m7 22-4-4 4-4" />
+    <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+    {repeatState === "track" && <path d="M11 10h1v4" />}
+  </svg>
+);
+
+const TrackInfo = ({ currentTrack }) => {
+  const containerRef = useRef(null);
+  const contentRef = useRef(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  const artistsContainerRef = useRef(null);
+  const artistsContentRef = useRef(null);
+  const [isArtistsOverflowing, setIsArtistsOverflowing] = useState(false);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (containerRef.current && contentRef.current) {
+        setIsOverflowing(
+          contentRef.current.scrollWidth > containerRef.current.clientWidth
+        );
+      }
+      if (artistsContainerRef.current && artistsContentRef.current) {
+        setIsArtistsOverflowing(
+          artistsContentRef.current.scrollWidth >
+            artistsContainerRef.current.clientWidth
+        );
+      }
+    };
+
+    checkOverflow();
+    window.addEventListener("resize", checkOverflow);
+    return () => window.removeEventListener("resize", checkOverflow);
+  }, [currentTrack.name, currentTrack.artists]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="truncate w-full self-start md:self-center"
+    >
+      {isOverflowing ? (
+        <InfiniteSlider durationOnHover={75}>
+          <a
+            ref={contentRef}
+            href={currentTrack.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-zinc-100 hover:underline underline-offset-2 text-lg font-semibold md:font-bold inline-block"
+          >
+            {currentTrack.name}
+          </a>
+        </InfiniteSlider>
+      ) : (
+        <a
+          ref={contentRef}
+          href={currentTrack.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-zinc-100 hover:underline underline-offset-2 text-lg font-semibold md:font-bold inline-block"
+        >
+          {currentTrack.name}
+        </a>
+      )}
+      <div
+        ref={artistsContainerRef}
+        className="flex items-center font-medium truncate space-x-1 text-zinc-300 text-base"
+      >
+        {currentTrack.explicit && (
+          <span className="px-1.5 py-0.5 text-zinc-300 bg-zinc-500/25 rounded w-min select-none text-sm">
+            E
+          </span>
+        )}
+        {isArtistsOverflowing ? (
+          <InfiniteSlider durationOnHover={75}>
+            <div
+              ref={artistsContentRef}
+              className="flex items-center space-x-1"
+            >
+              {currentTrack.artists.map((item, index) => (
+                <Fragment key={index}>
+                  <a
+                    className="hover:underline underline-offset-2 whitespace-nowrap"
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {item.name}
+                  </a>
+                  {index < currentTrack.artists.length - 1 && (
+                    <span className="text-zinc-400">·</span>
+                  )}
+                </Fragment>
+              ))}
+            </div>
+          </InfiniteSlider>
+        ) : (
+          <div ref={artistsContentRef} className="flex items-center space-x-1">
+            {currentTrack.artists.map((item, index) => (
+              <Fragment key={index}>
+                <a
+                  className="hover:underline underline-offset-2"
+                  href={item.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {item.name}
+                </a>
+                {index < currentTrack.artists.length - 1 && (
+                  <span className="text-zinc-400">·</span>
+                )}
+              </Fragment>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="font-medium truncate text-zinc-300 text-sm">
+        <a
+          className="hover:underline underline-offset-2"
+          href={currentTrack.album.link}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {currentTrack.album.name}
+        </a>
+      </div>
+    </div>
+  );
+};
 
 export default function SpotifyPlayer() {
   const {
@@ -34,193 +198,109 @@ export default function SpotifyPlayer() {
     fullScreen,
   } = useSpotify();
 
+  const albumCover = useMemo(() => {
+    if (!currentTrack) return null;
+    return (
+      <Button
+        onClick={toggleFullScreen}
+        className="relative shrink-0 w-full md:w-auto group"
+      >
+        <img
+          alt="Album Cover"
+          src={currentTrack.album.images[0].url}
+          srcSet={`${currentTrack.album.images[1].url} 1x, ${currentTrack.album.images[0].url} 2x`}
+          loading="lazy"
+          className="rounded-xl transition-all duration-300 w-full md:w-auto md:size-24"
+        />
+        <div className="invisible group-data-[hover]:visible duration-150 transition flex items-center justify-center absolute inset-0 bg-transparent group-data-[hover]:bg-zinc-900/50 text-zinc-200 rounded-xl">
+          {fullScreen ? (
+            <ArrowsPointingInIcon className="size-5" />
+          ) : (
+            <ArrowsPointingOutIcon className="size-5" />
+          )}
+        </div>
+      </Button>
+    );
+  }, [currentTrack, fullScreen, toggleFullScreen]);
+
+  if (!currentTrack) return null;
+
   return (
     <Transition show={!!currentTrack} appear as={Fragment}>
-      {currentTrack && (
-        <div className="absolute flex gap-3 flex-col items-center justify-center transition duration-150 data-[closed]:scale-50 data-[closed]:opacity-0 inset-2">
-          <div className="bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl max-w-md w-full">
-            <div className="flex items-center gap-3 flex-col md:flex-row">
-              <Button
-                onClick={toggleFullScreen}
-                className="relative shrink-0 w-full md:w-auto group"
-              >
-                <img
-                  alt="Album Cover"
-                  src={currentTrack.album.images[0].url}
-                  srcSet={`${currentTrack.album.images[1].url} 1x, ${currentTrack.album.images[0].url} 2x`}
-                  loading="lazy"
-                  className="rounded-xl transition-all duration-300 w-full md:w-auto md:size-24"
-                />
-                <div className="invisible group-data-[hover]:visible duration-150 transition flex items-center justify-center absolute inset-0 bg-transparent group-data-[hover]:bg-zinc-900/50 text-zinc-200 rounded-xl">
-                  {fullScreen ? (
-                    <ArrowsPointingInIcon className="size-5" />
-                  ) : (
-                    <ArrowsPointingOutIcon className="size-5" />
-                  )}
-                </div>
-              </Button>
-
-              <div className="truncate w-full self-start md:self-center">
-                <a
-                  href={currentTrack.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="truncate text-zinc-100 hover:underline underline-offset-2 text-lg font-semibold md:font-bold"
-                >
-                  {currentTrack.name}
-                </a>
-                <div className="flex items-center font-medium truncate space-x-1 text-zinc-300 text-base">
-                  {currentTrack.explicit && (
-                    <span className="px-1.5 py-0.5 text-zinc-300 bg-zinc-500/25 rounded w-min select-none text-sm">
-                      E
-                    </span>
-                  )}
-                  {currentTrack.artists.map((item, index) => (
-                    <Fragment key={index}>
-                      <a
-                        className="hover:underline underline-offset-2 truncate"
-                        href={item.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {item.name}
-                      </a>
-                      {index < currentTrack.artists.length - 1 && (
-                        <span className="text-zinc-400">·</span>
-                      )}
-                    </Fragment>
-                  ))}
-                </div>
-                <div className="font-medium truncate text-zinc-300 text-sm">
-                  <a
-                    className="hover:underline underline-offset-2"
-                    href={currentTrack.album.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {currentTrack.album.name}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="max-w-sm w-full bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl">
-            <div className="relative">
-              <div
-                className="h-1 bg-zinc-200 rounded-full absolute z-10 transition-all duration-300"
-                style={{ width: `${progressPercentage}%` }}
-              />
-              <div
-                className="size-2 bg-zinc-100 rounded-full absolute z-10 transition-all duration-300 -translate-y-0.5"
-                style={{ left: `${progressPercentage}%` }}
-              />
-              <div className="w-full h-1 bg-zinc-400 rounded-full" />
-              <div className="w-full flex justify-between text-xs text-zinc-400 mt-1">
-                <span className="hover:text-zinc-300 transition duration-75 select-none">
-                  {formatTime(progress)}
-                </span>
-                <span className="hover:text-zinc-300 transition duration-75 select-none">
-                  {formatTime(currentTrack.durationMs)}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <Button
-                onClick={toggleShuffle}
-                className="p-1 outline-none relative group text-zinc-400"
-              >
-                <svg
-                  className={`size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75 ${
-                    currentTrack.shuffleState && "stroke-zinc-200"
-                  }`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22" />
-                  <path d="m18 2 4 4-4 4" />
-                  <path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2" />
-                  <path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8" />
-                  <path d="m18 14 4 4-4 4" />
-                </svg>
-                {currentTrack.shuffleState && (
-                  <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
-                )}
-              </Button>
-              <div className="flex items-center justify-center gap-1">
-                <Button
-                  onClick={isPlaying ? skipToPrevious : null}
-                  className="p-1 outline-none relative group text-zinc-300"
-                >
-                  <BackwardIcon className="size-5 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
-                </Button>
-                <Button
-                  onClick={togglePlay}
-                  className="p-1 rounded-xl outline-none relative group text-zinc-200"
-                >
-                  {isPlaying ? (
-                    <PauseIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
-                  ) : (
-                    <PlayIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
-                  )}
-                </Button>
-                <Button
-                  onClick={isPlaying ? skipToNext : null}
-                  className="p-1 outline-none relative group text-zinc-300"
-                >
-                  <ForwardIcon className="size-5 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
-                </Button>
-              </div>
-              <Button
-                onClick={rotateRepeateState}
-                className="p-1 outline-none relative group text-zinc-400"
-              >
-                {currentTrack.repeatState === "track" ? (
-                  <svg
-                    className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75 stroke-zinc-200"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="m17 2 4 4-4 4" />
-                    <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
-                    <path d="m7 22-4-4 4-4" />
-                    <path d="M21 13v1a4 4 0 0 1-4 4H3" />
-                    <path d="M11 10h1v4" />
-                  </svg>
-                ) : (
-                  <svg
-                    className={`size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75 ${
-                      currentTrack.repeatState !== "off" && "stroke-zinc-200"
-                    }`}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="m17 2 4 4-4 4" />
-                    <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
-                    <path d="m7 22-4-4 4-4" />
-                    <path d="M21 13v1a4 4 0 0 1-4 4H3" />
-                  </svg>
-                )}
-                {currentTrack.repeatState !== "off" && (
-                  <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
-                )}
-              </Button>
-            </div>
+      <div className="absolute flex gap-3 flex-col items-center justify-center transition duration-150 data-[closed]:scale-50 data-[closed]:opacity-0 inset-2">
+        <div className="bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl sm:max-w-md w-full">
+          <div className="flex items-center gap-3 flex-col md:flex-row">
+            {albumCover}
+            <TrackInfo currentTrack={currentTrack} />
           </div>
         </div>
-      )}
+
+        <div className="sm:max-w-sm w-full bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl">
+          <div className="relative">
+            <div
+              className="h-1 bg-zinc-200 rounded-full absolute z-10 transition-all duration-300"
+              style={{ width: `${progressPercentage}%` }}
+            />
+            <div
+              className="size-2 bg-zinc-100 rounded-full absolute z-10 transition-all duration-300 -translate-y-0.5"
+              style={{ left: `${progressPercentage}%` }}
+            />
+            <div className="w-full h-1 bg-zinc-400/50 rounded-full" />
+            <div className="w-full flex justify-between text-xs text-zinc-300 mt-1">
+              <span className="hover:text-zinc-200 transition duration-75 select-none">
+                {formatTime(progress)}
+              </span>
+              <span className="hover:text-zinc-200 transition duration-75 select-none">
+                {formatTime(currentTrack.durationMs)}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <Button
+              onClick={toggleShuffle}
+              className="p-1 outline-none relative group text-zinc-400"
+            >
+              <ShuffleIcon shuffleState={currentTrack.shuffleState} />
+              {currentTrack.shuffleState && (
+                <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
+              )}
+            </Button>
+            <div className="flex items-center justify-center gap-1">
+              <Button
+                onClick={isPlaying ? skipToPrevious : null}
+                className="p-1 outline-none relative group text-zinc-300"
+              >
+                <BackwardIcon className="size-5 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
+              </Button>
+              <Button
+                onClick={togglePlay}
+                className="p-1 rounded-xl outline-none relative group text-zinc-200"
+              >
+                {isPlaying ? (
+                  <PauseIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
+                ) : (
+                  <PlayIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
+                )}
+              </Button>
+              <Button
+                onClick={isPlaying ? skipToNext : null}
+                className="p-1 outline-none relative group text-zinc-300"
+              >
+                <ForwardIcon className="size-5 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
+              </Button>
+            </div>
+            <Button
+              onClick={rotateRepeateState}
+              className="p-1 outline-none relative group text-zinc-400"
+            >
+              <RepeatIcon repeatState={currentTrack.repeatState} />
+              {currentTrack.repeatState !== "off" && (
+                <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
     </Transition>
   );
 }
