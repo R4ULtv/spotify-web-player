@@ -4,6 +4,8 @@ import { Button, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { useSpotify } from "@/components/providers/SpotifyProvider";
 import {
+  ArrowsPointingInIcon,
+  ArrowsPointingOutIcon,
   BackwardIcon,
   ForwardIcon,
   PauseIcon,
@@ -29,6 +31,8 @@ export default function SpotifyPlayer() {
     toggleShuffle,
     rotateRepeateState,
     playerMode,
+    toggleFullScreen,
+    fullScreen,
   } = useSpotify();
 
   return (
@@ -41,19 +45,32 @@ export default function SpotifyPlayer() {
                 playerMode === "ds" ? "flex-row" : "flex-col"
               }`}
             >
-              <img
-                alt="Album Cover"
-                src={
-                  playerMode === "ds"
-                    ? currentTrack.album.images[2].url
-                    : currentTrack.album.images[0].url
-                }
-                className={`rounded-xl ${
-                  playerMode === "ds" ? "size-16" : "w-full"
-                }`}
-              />
+              <Button
+                onClick={toggleFullScreen}
+                className="relative shrink-0 group"
+              >
+                <img
+                  alt="Album Cover"
+                  src={
+                    playerMode === "ds"
+                      ? currentTrack.album.images[2].url
+                      : currentTrack.album.images[0].url
+                  }
+                  className={`rounded-xl transition-all duration-300 ${
+                    playerMode === "ds" ? "size-16" : "w-full"
+                  }`}
+                />
+                <div className="invisible group-data-[hover]:visible duration-150 transition flex items-center justify-center absolute inset-0 bg-zinc-900/50 text-zinc-200 rounded-xl">
+                  {fullScreen ? (
+                    <ArrowsPointingInIcon className="size-5" />
+                  ) : (
+                    <ArrowsPointingOutIcon className="size-5" />
+                  )}
+                </div>
+              </Button>
+
               <div
-                className={`truncate ${
+                className={`truncate w-full ${
                   playerMode === "ds" ? "self-center" : "self-start"
                 }`}
               >

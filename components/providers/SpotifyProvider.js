@@ -20,6 +20,7 @@ export const SpotifyProvider = ({ children }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentPalette, setCurrentPalette] = useState(null);
+  const [fullScreen, setFullScreen] = useState(false);
   const [playerMode, setPlayerMode] = useState("ds");
 
   const playerModes = ["ds", "mb", "tv"];
@@ -262,6 +263,44 @@ export const SpotifyProvider = ({ children }) => {
     [progress, currentTrack]
   );
 
+  const toggleFullScreen = useCallback(() => {
+    let html = document.documentElement;
+
+    /* View in fullscreen */
+    function openFullscreen() {
+      if (html.requestFullscreen) {
+        html.requestFullscreen();
+      } else if (html.webkitRequestFullscreen) {
+        /* Safari */
+        html.webkitRequestFullscreen();
+      } else if (html.msRequestFullscreen) {
+        /* IE11 */
+        html.msRequestFullscreen();
+      }
+    }
+
+    /* Close fullscreen */
+    function closeFullscreen() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        /* Safari */
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        /* IE11 */
+        document.msExitFullscreen();
+      }
+    }
+
+    if (fullScreen) {
+      closeFullscreen();
+      setFullScreen(false);
+    } else {
+      openFullscreen();
+      setFullScreen(true);
+    }
+  }, [fullScreen]);
+
   const value = useMemo(
     () => ({
       currentTrack,
@@ -270,11 +309,13 @@ export const SpotifyProvider = ({ children }) => {
       currentPalette,
       progressPercentage,
       playerMode,
+      fullScreen,
       togglePlay,
       skipToPrevious,
       skipToNext,
       toggleShuffle,
       rotateRepeateState,
+      toggleFullScreen,
     }),
     [
       currentTrack,
@@ -283,11 +324,13 @@ export const SpotifyProvider = ({ children }) => {
       currentPalette,
       progressPercentage,
       playerMode,
+      fullScreen,
       togglePlay,
       skipToPrevious,
       skipToNext,
       toggleShuffle,
       rotateRepeateState,
+      toggleFullScreen,
     ]
   );
 
