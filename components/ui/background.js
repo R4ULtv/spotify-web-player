@@ -46,7 +46,7 @@ export default function RandomCircle() {
       {circles.map(({ id, x, y, size, color, animationDelay }) => (
         <div
           key={id}
-          className="absolute rounded-full opacity-50 blur-2xl animate-float"
+          className="absolute rounded-full opacity-50 blur-2xl animate-float transition-all duration-300"
           style={{
             backgroundColor: color,
             animationDelay,
