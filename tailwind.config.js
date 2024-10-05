@@ -7,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      inset: {
+        "1/8": "12.5%",
+      },
       animation: {
         float: "float 20s infinite ease-in-out",
       },
