@@ -312,6 +312,28 @@ export const SpotifyProvider = ({ children }) => {
     }
   }, [fullScreen]);
 
+  const seekTrack = useCallback(async (positionMs) => {
+    if (!currentTrack) return;
+    try {
+      const res = await fetch(`https://api.spotify.com/v1/me/player/seek?position_ms=${positionMs}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      });
+      if (res.status === 403) {
+        throw new Error("Spotify Premium is REQUIRED to seek within a track");
+      }
+      if (!res.ok) {
+        throw new Error("Failed to seek within track");
+      }
+      setProgress(positionMs);
+    } catch (error) {
+      toast.error("Failed to seek within track:", { description: error.message });
+      console.error("Error seeking within track:", error);
+    }
+  }, [currentTrack, session?.accessToken]);
+
   const value = useMemo(
     () => ({
       currentTrack,
@@ -328,6 +350,7 @@ export const SpotifyProvider = ({ children }) => {
       rotateRepeateState,
       toggleFullScreen,
       toggleTvMode,
+      seekTrack,
     }),
     [
       currentTrack,
@@ -344,6 +367,7 @@ export const SpotifyProvider = ({ children }) => {
       toggleShuffle,
       rotateRepeateState,
       toggleFullScreen,
+      seekTrack,
     ]
   );
 

@@ -11,7 +11,8 @@ import {
   PauseIcon,
   PlayIcon,
 } from "@heroicons/react/20/solid";
-import { InfiniteSlider } from "../animations/infinite-slider";
+import { InfiniteSlider } from "@/components/animations/infinite-slider";
+import { Slider } from "@/components/ui/slider";
 
 const formatTime = (ms) => {
   const seconds = Math.floor(ms / 1000);
@@ -217,7 +218,28 @@ export default function SpotifyPlayer() {
     toggleFullScreen,
     fullScreen,
     tvMode,
+    seekTrack,
   } = useSpotify();
+
+  const [sliderValue, setSliderValue] = useState(progressPercentage);
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    if (!isDragging) {
+      setSliderValue(progressPercentage);
+    }
+  }, [progressPercentage, isDragging]);
+
+  const handleSliderChange = (value) => {
+    setSliderValue(value[0]);
+    setIsDragging(true);
+  };
+
+  const handleSliderCommit = (value) => {
+    const positionMs = Math.round((value[0] / 100) * currentTrack.durationMs);
+    seekTrack(positionMs);
+    setIsDragging(false);
+  };
 
   const albumCover = useMemo(() => {
     if (!currentTrack) return null;
@@ -253,15 +275,14 @@ export default function SpotifyPlayer() {
     return (
       <div className="w-full">
         <div className="relative">
-          <div
-            className="h-1 bg-zinc-200 rounded-full absolute z-10 transition-all duration-300"
-            style={{ width: `${progressPercentage}%` }}
+          <Slider 
+            value={[sliderValue]}
+            onValueChange={handleSliderChange}
+            onValueCommit={handleSliderCommit}
+            min={0} 
+            max={100} 
+            step={1} 
           />
-          <div
-            className="size-2 bg-zinc-100 rounded-full absolute z-10 transition-all duration-300 -translate-y-0.5"
-            style={{ left: `${progressPercentage}%` }}
-          />
-          <div className="w-full h-1 bg-zinc-400/50 rounded-full" />
           <div className="w-full flex justify-between text-xs text-zinc-300 mt-1">
             <span className="hover:text-zinc-200 transition duration-75 select-none">
               {formatTime(progress)}
@@ -319,7 +340,9 @@ export default function SpotifyPlayer() {
     );
   }, [
     currentTrack,
-    progressPercentage,
+    sliderValue,
+    progress,
+    seekTrack,
     skipToPrevious,
     skipToNext,
     togglePlay,
