@@ -199,13 +199,22 @@ export const SpotifyProvider = ({ children }) => {
 
   const fetchCurrentPalette = useCallback(async () => {
     if (!currentTrack?.album?.images[2]?.url) return;
-    document.title = `${currentTrack.name} - Spotify Web Player`;
+    document.title = `${currentTrack.name} - ${currentTrack.artists
+      .map((artist) => artist.name)
+      .join(", ")} | Spotify Web Player`;
     try {
       const colors = await extractColors(currentTrack.album.images[2].url, {
         crossOrigin: "Anonymous",
         // You can add more options here as needed
       });
       setCurrentPalette(colors);
+      const link =
+        document.querySelector("link[rel~='icon']") ||
+        document.createElement("link");
+      link.type = "image/png";
+      link.rel = "shortcut icon";
+      link.href = currentTrack.album.images[2].url;
+      document.getElementsByTagName("head")[0].appendChild(link);
     } catch (error) {
       console.error("Error extracting colors:", error);
       setCurrentPalette(null);
@@ -312,27 +321,35 @@ export const SpotifyProvider = ({ children }) => {
     }
   }, [fullScreen]);
 
-  const seekTrack = useCallback(async (positionMs) => {
-    if (!currentTrack) return;
-    try {
-      const res = await fetch(`https://api.spotify.com/v1/me/player/seek?position_ms=${positionMs}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-      });
-      if (res.status === 403) {
-        throw new Error("Spotify Premium is REQUIRED to seek within a track");
+  const seekTrack = useCallback(
+    async (positionMs) => {
+      if (!currentTrack) return;
+      try {
+        const res = await fetch(
+          `https://api.spotify.com/v1/me/player/seek?position_ms=${positionMs}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${session?.accessToken}`,
+            },
+          }
+        );
+        if (res.status === 403) {
+          throw new Error("Spotify Premium is REQUIRED to seek within a track");
+        }
+        if (!res.ok) {
+          throw new Error("Failed to seek within track");
+        }
+        setProgress(positionMs);
+      } catch (error) {
+        toast.error("Failed to seek within track:", {
+          description: error.message,
+        });
+        console.error("Error seeking within track:", error);
       }
-      if (!res.ok) {
-        throw new Error("Failed to seek within track");
-      }
-      setProgress(positionMs);
-    } catch (error) {
-      toast.error("Failed to seek within track:", { description: error.message });
-      console.error("Error seeking within track:", error);
-    }
-  }, [currentTrack, session?.accessToken]);
+    },
+    [currentTrack, session?.accessToken]
+  );
 
   const value = useMemo(
     () => ({
