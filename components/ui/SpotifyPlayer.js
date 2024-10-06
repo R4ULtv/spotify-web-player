@@ -103,7 +103,7 @@ const TrackInfo = ({ currentTrack, tvMode }) => {
             rel="noopener noreferrer"
             className={`text-zinc-100 hover:underline underline-offset-2 inline-block ${
               tvMode
-                ? "text-7xl font-black"
+                ? "text-4xl lg:text-8xl font-black"
                 : "text-lg font-semibold md:font-bold"
             }`}
           >
@@ -118,7 +118,7 @@ const TrackInfo = ({ currentTrack, tvMode }) => {
           rel="noopener noreferrer"
           className={`text-zinc-100 hover:underline underline-offset-2 inline-block ${
             tvMode
-              ? "text-7xl font-black"
+              ? "text-4xl lg:text-8xl font-black"
               : "text-lg font-semibold md:font-bold"
           }`}
         >
@@ -129,14 +129,14 @@ const TrackInfo = ({ currentTrack, tvMode }) => {
         ref={artistsContainerRef}
         className={`flex items-center text-zinc-300 ${
           tvMode
-            ? "text-3xl font-semibold space-x-2"
+            ? "text-base lg:text-3xl font-semibold space-x-2"
             : "text-base space-x-1 font-medium"
         }`}
       >
         {currentTrack.explicit && (
           <span
             className={`px-1.5 py-0.5 text-zinc-300 bg-zinc-500/25 rounded w-min select-none ${
-              tvMode ? "text-base" : "text-sm"
+              tvMode ? "text-sm lg:text-base" : "text-sm"
             }`}
           >
             E
@@ -187,7 +187,7 @@ const TrackInfo = ({ currentTrack, tvMode }) => {
       </div>
       <div
         className={`truncate text-zinc-300 ${
-          tvMode ? "text-2xl font-semibold" : "text-sm font-medium"
+          tvMode ? "text-base lg:text-2xl font-semibold" : "text-sm font-medium"
         }`}
       >
         <a
@@ -224,7 +224,7 @@ export default function SpotifyPlayer() {
     return (
       <Button
         onClick={toggleFullScreen}
-        className={`relative shrink-0 w-full md:w-auto group`}
+        className={`relative shrink-0 w-full md:h-full md:w-auto group`}
       >
         <img
           alt="Album Cover"
@@ -232,7 +232,9 @@ export default function SpotifyPlayer() {
           srcSet={`${currentTrack.album.images[1].url} 1x, ${currentTrack.album.images[0].url} 2x`}
           loading="lazy"
           className={`rounded-xl transition-all duration-300 ${
-            tvMode ? "w-full aspect-square" : "w-full md:w-auto md:size-24"
+            tvMode
+              ? "w-full h-full aspect-square"
+              : "w-full md:w-auto md:size-24"
           }`}
         />
         <div className="invisible group-data-[hover]:visible duration-150 transition flex items-center justify-center absolute inset-0 bg-transparent group-data-[hover]:bg-zinc-900/50 text-zinc-200 rounded-xl">
@@ -249,7 +251,7 @@ export default function SpotifyPlayer() {
   const trackControls = useMemo(() => {
     if (!currentTrack) return null;
     return (
-      <div className="w-full px-4">
+      <div className="w-full">
         <div className="relative">
           <div
             className="h-1 bg-zinc-200 rounded-full absolute z-10 transition-all duration-300"
@@ -329,17 +331,17 @@ export default function SpotifyPlayer() {
     <Transition show={!!currentTrack} appear as={Fragment}>
       <div
         className={`absolute flex gap-3 flex-col items-center justify-center transition duration-150 data-[closed]:scale-50 data-[closed]:opacity-0 ${
-          tvMode ? "inset-1/8" : "inset-2"
+          tvMode ? "inset-1/16" : "inset-2"
         }`}
       >
         <div
           className={`bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl transition-all duration-300 ${
-            tvMode ? "w-full" : "sm:max-w-md w-full"
+            tvMode ? "w-full h-1/2" : "sm:max-w-md w-full"
           }`}
         >
           <div className="flex items-center gap-3 flex-col md:flex-row h-full">
             {albumCover}
-            <div className="truncate w-full h-full flex flex-col justify-around gap-8">
+            <div className={`truncate w-full ${tvMode && "h-full flex flex-col justify-around gap-2"}`}>
               <TrackInfo currentTrack={currentTrack} tvMode={tvMode} />
               {tvMode && trackControls}
             </div>

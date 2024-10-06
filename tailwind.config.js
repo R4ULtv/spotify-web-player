@@ -9,6 +9,7 @@ module.exports = {
     extend: {
       inset: {
         "1/8": "12.5%",
+        "1/16": "6.25%",
       },
       animation: {
         float: "float 20s infinite ease-in-out",
