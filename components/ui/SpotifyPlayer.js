@@ -60,7 +60,7 @@ const RepeatIcon = ({ repeatState }) => (
   </svg>
 );
 
-const TrackInfo = ({ currentTrack }) => {
+const TrackInfo = ({ currentTrack, tvMode }) => {
   const containerRef = useRef(null);
   const contentRef = useRef(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -101,7 +101,11 @@ const TrackInfo = ({ currentTrack }) => {
             href={currentTrack.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-zinc-100 hover:underline underline-offset-2 text-lg font-semibold md:font-bold inline-block"
+            className={`text-zinc-100 hover:underline underline-offset-2 inline-block ${
+              tvMode
+                ? "text-7xl font-black"
+                : "text-lg font-semibold md:font-bold"
+            }`}
           >
             {currentTrack.name}
           </a>
@@ -112,17 +116,29 @@ const TrackInfo = ({ currentTrack }) => {
           href={currentTrack.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-zinc-100 hover:underline underline-offset-2 text-lg font-semibold md:font-bold inline-block"
+          className={`text-zinc-100 hover:underline underline-offset-2 inline-block ${
+            tvMode
+              ? "text-7xl font-black"
+              : "text-lg font-semibold md:font-bold"
+          }`}
         >
           {currentTrack.name}
         </a>
       )}
       <div
         ref={artistsContainerRef}
-        className="flex items-center font-medium truncate space-x-1 text-zinc-300 text-base"
+        className={`flex items-center text-zinc-300 ${
+          tvMode
+            ? "text-3xl font-semibold space-x-2"
+            : "text-base space-x-1 font-medium"
+        }`}
       >
         {currentTrack.explicit && (
-          <span className="px-1.5 py-0.5 text-zinc-300 bg-zinc-500/25 rounded w-min select-none text-sm">
+          <span
+            className={`px-1.5 py-0.5 text-zinc-300 bg-zinc-500/25 rounded w-min select-none ${
+              tvMode ? "text-base" : "text-sm"
+            }`}
+          >
             E
           </span>
         )}
@@ -169,7 +185,11 @@ const TrackInfo = ({ currentTrack }) => {
           </div>
         )}
       </div>
-      <div className="font-medium truncate text-zinc-300 text-sm">
+      <div
+        className={`truncate text-zinc-300 ${
+          tvMode ? "text-2xl font-semibold" : "text-sm font-medium"
+        }`}
+      >
         <a
           className="hover:underline underline-offset-2"
           href={currentTrack.album.link}
@@ -196,6 +216,7 @@ export default function SpotifyPlayer() {
     rotateRepeateState,
     toggleFullScreen,
     fullScreen,
+    tvMode,
   } = useSpotify();
 
   const albumCover = useMemo(() => {
@@ -203,14 +224,16 @@ export default function SpotifyPlayer() {
     return (
       <Button
         onClick={toggleFullScreen}
-        className="relative shrink-0 w-full md:w-auto group"
+        className={`relative shrink-0 w-full md:w-auto group`}
       >
         <img
           alt="Album Cover"
           src={currentTrack.album.images[0].url}
           srcSet={`${currentTrack.album.images[1].url} 1x, ${currentTrack.album.images[0].url} 2x`}
           loading="lazy"
-          className="rounded-xl transition-all duration-300 w-full md:w-auto md:size-24"
+          className={`rounded-xl transition-all duration-300 ${
+            tvMode ? "w-full aspect-square" : "w-full md:w-auto md:size-24"
+          }`}
         />
         <div className="invisible group-data-[hover]:visible duration-150 transition flex items-center justify-center absolute inset-0 bg-transparent group-data-[hover]:bg-zinc-900/50 text-zinc-200 rounded-xl">
           {fullScreen ? (
@@ -221,85 +244,112 @@ export default function SpotifyPlayer() {
         </div>
       </Button>
     );
-  }, [currentTrack, fullScreen, toggleFullScreen]);
+  }, [currentTrack, fullScreen, toggleFullScreen, tvMode]);
+
+  const trackControls = useMemo(() => {
+    if (!currentTrack) return null;
+    return (
+      <div className="w-full px-4">
+        <div className="relative">
+          <div
+            className="h-1 bg-zinc-200 rounded-full absolute z-10 transition-all duration-300"
+            style={{ width: `${progressPercentage}%` }}
+          />
+          <div
+            className="size-2 bg-zinc-100 rounded-full absolute z-10 transition-all duration-300 -translate-y-0.5"
+            style={{ left: `${progressPercentage}%` }}
+          />
+          <div className="w-full h-1 bg-zinc-400/50 rounded-full" />
+          <div className="w-full flex justify-between text-xs text-zinc-300 mt-1">
+            <span className="hover:text-zinc-200 transition duration-75 select-none">
+              {formatTime(progress)}
+            </span>
+            <span className="hover:text-zinc-200 transition duration-75 select-none">
+              {formatTime(currentTrack.durationMs)}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <Button
+            onClick={toggleShuffle}
+            className="p-1 outline-none relative group text-zinc-400"
+          >
+            <ShuffleIcon shuffleState={currentTrack.shuffleState} />
+            {currentTrack.shuffleState && (
+              <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
+            )}
+          </Button>
+          <div className="flex items-center justify-center gap-1">
+            <Button
+              onClick={isPlaying ? skipToPrevious : null}
+              className="p-1 outline-none relative group text-zinc-300"
+            >
+              <BackwardIcon className="size-5 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
+            </Button>
+            <Button
+              onClick={togglePlay}
+              className="p-1 rounded-xl outline-none relative group text-zinc-200"
+            >
+              {isPlaying ? (
+                <PauseIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
+              ) : (
+                <PlayIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
+              )}
+            </Button>
+            <Button
+              onClick={isPlaying ? skipToNext : null}
+              className="p-1 outline-none relative group text-zinc-300"
+            >
+              <ForwardIcon className="size-5 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
+            </Button>
+          </div>
+          <Button
+            onClick={rotateRepeateState}
+            className="p-1 outline-none relative group text-zinc-400"
+          >
+            <RepeatIcon repeatState={currentTrack.repeatState} />
+            {currentTrack.repeatState !== "off" && (
+              <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
+            )}
+          </Button>
+        </div>
+      </div>
+    );
+  }, [
+    currentTrack,
+    progressPercentage,
+    skipToPrevious,
+    skipToNext,
+    togglePlay,
+  ]);
 
   if (!currentTrack) return null;
 
   return (
     <Transition show={!!currentTrack} appear as={Fragment}>
-      <div className="absolute flex gap-3 flex-col items-center justify-center transition duration-150 data-[closed]:scale-50 data-[closed]:opacity-0 inset-2">
-        <div className="bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl sm:max-w-md w-full">
-          <div className="flex items-center gap-3 flex-col md:flex-row">
+      <div
+        className={`absolute flex gap-3 flex-col items-center justify-center transition duration-150 data-[closed]:scale-50 data-[closed]:opacity-0 ${
+          tvMode ? "inset-1/8" : "inset-2"
+        }`}
+      >
+        <div
+          className={`bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl transition-all duration-300 ${
+            tvMode ? "w-full" : "sm:max-w-md w-full"
+          }`}
+        >
+          <div className="flex items-center gap-3 flex-col md:flex-row h-full">
             {albumCover}
-            <TrackInfo currentTrack={currentTrack} />
-          </div>
-        </div>
-
-        <div className="sm:max-w-sm w-full bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl">
-          <div className="relative">
-            <div
-              className="h-1 bg-zinc-200 rounded-full absolute z-10 transition-all duration-300"
-              style={{ width: `${progressPercentage}%` }}
-            />
-            <div
-              className="size-2 bg-zinc-100 rounded-full absolute z-10 transition-all duration-300 -translate-y-0.5"
-              style={{ left: `${progressPercentage}%` }}
-            />
-            <div className="w-full h-1 bg-zinc-400/50 rounded-full" />
-            <div className="w-full flex justify-between text-xs text-zinc-300 mt-1">
-              <span className="hover:text-zinc-200 transition duration-75 select-none">
-                {formatTime(progress)}
-              </span>
-              <span className="hover:text-zinc-200 transition duration-75 select-none">
-                {formatTime(currentTrack.durationMs)}
-              </span>
+            <div className="truncate w-full h-full flex flex-col justify-around gap-8">
+              <TrackInfo currentTrack={currentTrack} tvMode={tvMode} />
+              {tvMode && trackControls}
             </div>
           </div>
-          <div className="flex items-center justify-between">
-            <Button
-              onClick={toggleShuffle}
-              className="p-1 outline-none relative group text-zinc-400"
-            >
-              <ShuffleIcon shuffleState={currentTrack.shuffleState} />
-              {currentTrack.shuffleState && (
-                <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
-              )}
-            </Button>
-            <div className="flex items-center justify-center gap-1">
-              <Button
-                onClick={isPlaying ? skipToPrevious : null}
-                className="p-1 outline-none relative group text-zinc-300"
-              >
-                <BackwardIcon className="size-5 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
-              </Button>
-              <Button
-                onClick={togglePlay}
-                className="p-1 rounded-xl outline-none relative group text-zinc-200"
-              >
-                {isPlaying ? (
-                  <PauseIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
-                ) : (
-                  <PlayIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
-                )}
-              </Button>
-              <Button
-                onClick={isPlaying ? skipToNext : null}
-                className="p-1 outline-none relative group text-zinc-300"
-              >
-                <ForwardIcon className="size-5 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
-              </Button>
-            </div>
-            <Button
-              onClick={rotateRepeateState}
-              className="p-1 outline-none relative group text-zinc-400"
-            >
-              <RepeatIcon repeatState={currentTrack.repeatState} />
-              {currentTrack.repeatState !== "off" && (
-                <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
-              )}
-            </Button>
-          </div>
         </div>
+        {!tvMode && (
+          <div className="sm:max-w-sm w-full bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl">
+            {trackControls}
+          </div>
+        )}
       </div>
     </Transition>
   );

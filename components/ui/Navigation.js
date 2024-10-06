@@ -4,6 +4,8 @@ import { Button, Transition } from "@headlessui/react";
 import {
   ArrowRightEndOnRectangleIcon,
   Bars3Icon,
+  DevicePhoneMobileIcon,
+  TvIcon,
 } from "@heroicons/react/16/solid";
 import { signOut } from "next-auth/react";
 import { Fragment } from "react";
@@ -17,7 +19,7 @@ import {
 } from "@/components/ui/tooltip";
 
 export default function Navigation() {
-  const { currentTrack } = useSpotify();
+  const { currentTrack, tvMode, setTvMode } = useSpotify();
 
   const nav = [
     {
@@ -52,6 +54,18 @@ export default function Navigation() {
       label: "Github Repo",
       onClick: () =>
         window.open("https://github.com/R4ULtv/spotify-web-player/", "_blank"),
+      divedeAfter: true,
+    },
+    {
+      icon: tvMode ? (
+        <DevicePhoneMobileIcon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
+      ) : (
+        <TvIcon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
+      ),
+      label: tvMode ? "Exit TV Mode" : "Enter TV Mode",
+      onClick: () => {
+        setTvMode(!tvMode);
+      },
       divedeAfter: true,
     },
     {

@@ -21,6 +21,7 @@ export const SpotifyProvider = ({ children }) => {
   const [progress, setProgress] = useState(0);
   const [currentPalette, setCurrentPalette] = useState(null);
   const [fullScreen, setFullScreen] = useState(false);
+  const [tvMode, setTvMode] = useState(false);
 
   const toggleShuffle = useCallback(async () => {
     if (!currentTrack) return;
@@ -306,12 +307,14 @@ export const SpotifyProvider = ({ children }) => {
       currentPalette,
       progressPercentage,
       fullScreen,
+      tvMode,
       togglePlay,
       skipToPrevious,
       skipToNext,
       toggleShuffle,
       rotateRepeateState,
       toggleFullScreen,
+      setTvMode,
     }),
     [
       currentTrack,
@@ -320,6 +323,8 @@ export const SpotifyProvider = ({ children }) => {
       currentPalette,
       progressPercentage,
       fullScreen,
+      tvMode,
+      setTvMode,
       togglePlay,
       skipToPrevious,
       skipToNext,
