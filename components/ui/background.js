@@ -22,7 +22,7 @@ export default function RandomCircle() {
   }, [currentPalette]);
 
   const generateCircles = useCallback(() => {
-    const numCircles = otherColors.length * 2 + 5;
+    const numCircles = otherColors.length * 3;
     return Array.from({ length: numCircles }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
