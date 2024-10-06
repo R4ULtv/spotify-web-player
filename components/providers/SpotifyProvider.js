@@ -220,6 +220,19 @@ export const SpotifyProvider = ({ children }) => {
     }
   }, [fetchCurrentTrack]);
 
+  useEffect(() => {
+    const storedTvMode = localStorage.getItem("tvMode");
+    if (storedTvMode) {
+      setTvMode(storedTvMode === "true");
+    }
+  }, []);
+
+  const toggleTvMode = () => {
+    const newTvMode = !tvMode;
+    setTvMode(newTvMode);
+    localStorage.setItem("tvMode", newTvMode);
+  };
+
   // TODO: improve this code
   // useEffect(() => {
   //   const handleNewSong = async () => {
@@ -314,7 +327,7 @@ export const SpotifyProvider = ({ children }) => {
       toggleShuffle,
       rotateRepeateState,
       toggleFullScreen,
-      setTvMode,
+      toggleTvMode,
     }),
     [
       currentTrack,
@@ -324,7 +337,7 @@ export const SpotifyProvider = ({ children }) => {
       progressPercentage,
       fullScreen,
       tvMode,
-      setTvMode,
+      toggleTvMode,
       togglePlay,
       skipToPrevious,
       skipToNext,

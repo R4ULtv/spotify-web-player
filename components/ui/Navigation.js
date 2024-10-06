@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/tooltip";
 
 export default function Navigation() {
-  const { currentTrack, tvMode, setTvMode } = useSpotify();
+  const { currentTrack, tvMode, toggleTvMode } = useSpotify();
 
   const nav = [
     {
@@ -64,7 +64,7 @@ export default function Navigation() {
       ),
       label: tvMode ? "Exit TV Mode" : "Enter TV Mode",
       onClick: () => {
-        setTvMode(!tvMode);
+        toggleTvMode();
       },
       divedeAfter: true,
     },
