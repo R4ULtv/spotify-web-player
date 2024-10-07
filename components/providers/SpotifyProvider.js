@@ -224,7 +224,7 @@ export const SpotifyProvider = ({ children }) => {
   useEffect(() => {
     if (session?.accessToken) {
       fetchCurrentTrack();
-      const interval = setInterval(fetchCurrentTrack, 5000);
+      const interval = setInterval(fetchCurrentTrack, 2000);
       return () => clearInterval(interval);
     }
   }, [fetchCurrentTrack]);
