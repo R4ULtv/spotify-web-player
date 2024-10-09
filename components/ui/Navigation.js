@@ -69,7 +69,7 @@ export default function Navigation() {
       ) : (
         <TvIcon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
       ),
-      label: tvMode ? "Exit TV Mode" : "Enter TV Mode",
+      label: tvMode ? "Exit TV Mode" : "Enter TV Mode (Experimental)",
       onClick: () => {
         toggleTvMode();
       },
