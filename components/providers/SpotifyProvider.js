@@ -22,6 +22,7 @@ export const SpotifyProvider = ({ children }) => {
   // State to manage player information and UI settings
   const [playerState, setPlayerState] = useState({
     currentTrack: null,
+    isPlayingAds: false,
     isPlaying: false,
     progress: 0,
     currentPalette: null,
@@ -174,6 +175,12 @@ export const SpotifyProvider = ({ children }) => {
           currentTrack: track,
           progress: track.progressMs,
           isPlaying: track.isPlaying,
+          isPlayingAds: false,
+        }));
+      } else if (data?.currently_playing_type === "ad") {
+        setPlayerState((prev) => ({
+          ...prev,
+          isPlayingAds: true,
         }));
       }
     } catch (error) {
@@ -315,6 +322,60 @@ export const SpotifyProvider = ({ children }) => {
     },
     [fetchWithAuth, playerState.currentTrack]
   );
+
+  // Add key shortcuts for actions
+  useEffect(() => {
+    const keyActions = {
+      " ": (e) => {
+        e.preventDefault();
+        togglePlay();
+      },
+      ArrowLeft: (e) => {
+        if (e.shiftKey && playerState.currentTrack) {
+          e.preventDefault();
+          seekTrack(Math.max(0, playerState.progress - 10000));
+        } else {
+          skipToPrevious();
+        }
+      },
+      ArrowRight: (e) => {
+        if (e.shiftKey && playerState.currentTrack) {
+          e.preventDefault();
+          seekTrack(
+            Math.min(
+              playerState.currentTrack.durationMs,
+              playerState.progress + 10000
+            )
+          );
+        } else {
+          skipToNext();
+        }
+      },
+      s: toggleShuffle,
+      r: rotateRepeatState,
+      f: toggleFullScreen,
+      t: toggleTvMode,
+    };
+
+    const handleKeyDown = (event) => {
+      const action = keyActions[event.key];
+      if (action) action(event);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    togglePlay,
+    skipToPrevious,
+    skipToNext,
+    toggleShuffle,
+    rotateRepeatState,
+    toggleFullScreen,
+    toggleTvMode,
+    seekTrack,
+    playerState.currentTrack,
+    playerState.progress,
+  ]);
 
   // Memoize the context value to prevent unnecessary re-renders
   const value = useMemo(
