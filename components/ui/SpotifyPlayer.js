@@ -219,6 +219,7 @@ export default function SpotifyPlayer() {
     fullScreen,
     tvMode,
     seekTrack,
+    isPlayingAds,
   } = useSpotify();
 
   const [sliderValue, setSliderValue] = useState(progressPercentage);
@@ -351,7 +352,7 @@ export default function SpotifyPlayer() {
   if (!currentTrack) return null;
 
   return (
-    <Transition show={!!currentTrack} appear as={Fragment}>
+    <Transition show={!!currentTrack && !isPlayingAds} as={Fragment} appear>
       <div
         className={`absolute flex gap-3 flex-col items-center justify-center transition ease-out data-[closed]:scale-50 data-[closed]:opacity-0 ${
           tvMode ? "inset-1/16" : "inset-2"
