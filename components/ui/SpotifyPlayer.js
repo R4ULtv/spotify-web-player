@@ -23,7 +23,7 @@ const formatTime = (ms) => {
 
 const ShuffleIcon = ({ shuffleState }) => (
   <svg
-    className={`size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75 ${
+    className={`size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75 ${
       shuffleState && "stroke-zinc-200"
     }`}
     viewBox="0 0 24 24"
@@ -43,7 +43,7 @@ const ShuffleIcon = ({ shuffleState }) => (
 
 const RepeatIcon = ({ repeatState }) => (
   <svg
-    className={`size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75 ${
+    className={`size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75 ${
       repeatState !== "off" && "stroke-zinc-200"
     }`}
     viewBox="0 0 24 24"
@@ -214,7 +214,7 @@ export default function SpotifyPlayer() {
     skipToNext,
     togglePlay,
     toggleShuffle,
-    rotateRepeateState,
+    rotateRepeatState,
     toggleFullScreen,
     fullScreen,
     tvMode,
@@ -253,13 +253,13 @@ export default function SpotifyPlayer() {
           src={currentTrack.album.images[0].url}
           srcSet={`${currentTrack.album.images[1].url} 1x, ${currentTrack.album.images[0].url} 2x`}
           loading="lazy"
-          className={`rounded-xl transition-all duration-300 ${
+          className={`rounded-xl ${
             tvMode
               ? "w-full h-full aspect-square"
               : "w-full md:w-auto md:size-24"
           }`}
         />
-        <div className="invisible group-data-[hover]:visible duration-150 transition flex items-center justify-center absolute inset-0 bg-transparent group-data-[hover]:bg-zinc-900/50 text-zinc-200 rounded-xl">
+        <div className="invisible group-data-[hover]:visible transition ease-out flex items-center justify-center absolute inset-0 bg-transparent group-data-[hover]:bg-zinc-900/50 text-zinc-200 rounded-xl">
           {fullScreen ? (
             <ArrowsPointingInIcon className="size-5" />
           ) : (
@@ -275,19 +275,19 @@ export default function SpotifyPlayer() {
     return (
       <div className="w-full">
         <div className="relative">
-          <Slider 
+          <Slider
             value={[sliderValue]}
             onValueChange={handleSliderChange}
             onValueCommit={handleSliderCommit}
-            min={0} 
-            max={100} 
-            step={1} 
+            min={0}
+            max={100}
+            step={1}
           />
           <div className="w-full flex justify-between text-xs text-zinc-300 mt-1">
-            <span className="hover:text-zinc-200 transition duration-75 select-none">
+            <span className="hover:text-zinc-200 transition ease-out duration-75 select-none">
               {formatTime(progress)}
             </span>
-            <span className="hover:text-zinc-200 transition duration-75 select-none">
+            <span className="hover:text-zinc-200 transition ease-out duration-75 select-none">
               {formatTime(currentTrack.durationMs)}
             </span>
           </div>
@@ -307,27 +307,27 @@ export default function SpotifyPlayer() {
               onClick={isPlaying ? skipToPrevious : null}
               className="p-1 outline-none relative group text-zinc-300"
             >
-              <BackwardIcon className="size-5 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
+              <BackwardIcon className="size-5 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
             </Button>
             <Button
               onClick={togglePlay}
               className="p-1 rounded-xl outline-none relative group text-zinc-200"
             >
               {isPlaying ? (
-                <PauseIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
+                <PauseIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
               ) : (
-                <PlayIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
+                <PlayIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
               )}
             </Button>
             <Button
               onClick={isPlaying ? skipToNext : null}
               className="p-1 outline-none relative group text-zinc-300"
             >
-              <ForwardIcon className="size-5 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
+              <ForwardIcon className="size-5 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
             </Button>
           </div>
           <Button
-            onClick={rotateRepeateState}
+            onClick={rotateRepeatState}
             className="p-1 outline-none relative group text-zinc-400"
           >
             <RepeatIcon repeatState={currentTrack.repeatState} />
@@ -353,18 +353,22 @@ export default function SpotifyPlayer() {
   return (
     <Transition show={!!currentTrack} appear as={Fragment}>
       <div
-        className={`absolute flex gap-3 flex-col items-center justify-center transition duration-150 data-[closed]:scale-50 data-[closed]:opacity-0 ${
+        className={`absolute flex gap-3 flex-col items-center justify-center transition ease-out data-[closed]:scale-50 data-[closed]:opacity-0 ${
           tvMode ? "inset-1/16" : "inset-2"
         }`}
       >
         <div
-          className={`bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl transition-all duration-300 ${
+          className={`bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl ${
             tvMode ? "w-full h-1/2" : "sm:max-w-md w-full"
           }`}
         >
           <div className="flex items-center gap-3 flex-col md:flex-row h-full">
             {albumCover}
-            <div className={`truncate w-full ${tvMode && "h-full flex flex-col justify-around gap-2"}`}>
+            <div
+              className={`truncate w-full ${
+                tvMode && "h-full flex flex-col justify-around gap-2"
+              }`}
+            >
               <TrackInfo currentTrack={currentTrack} tvMode={tvMode} />
               {tvMode && trackControls}
             </div>
