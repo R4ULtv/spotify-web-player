@@ -12,161 +12,143 @@ import { extractColors } from "extract-colors";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 
+// Create a context for Spotify-related data and functions
 const SpotifyContext = createContext();
+
+const SPOTIFY_API_BASE = "https://api.spotify.com/v1";
 
 export const SpotifyProvider = ({ children }) => {
   const { data: session } = useSession();
-  const [currentTrack, setCurrentTrack] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [currentPalette, setCurrentPalette] = useState(null);
-  const [fullScreen, setFullScreen] = useState(false);
-  const [tvMode, setTvMode] = useState(false);
+  // State to manage player information and UI settings
+  const [playerState, setPlayerState] = useState({
+    currentTrack: null,
+    isPlaying: false,
+    progress: 0,
+    currentPalette: null,
+    fullScreen: false,
+    tvMode: false,
+  });
 
-  const toggleShuffle = useCallback(async () => {
-    if (!currentTrack) return;
-    try {
-      const res = await fetch(
-        `https://api.spotify.com/v1/me/player/shuffle?state=${!currentTrack.shuffleState}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
-        }
-      );
-      if (res.status === 403) {
-        throw new Error("Spotify Premium is REQUIRED to toggle shuffle");
-      }
-      if (!res.ok) {
-        throw new Error("Failed to toggle shuffle");
-      }
-      setIsPlaying(!isPlaying);
-    } catch (error) {
-      toast.error("Failed to toggle shuffle:", { description: error.message });
-      console.error("Error toggling shuffle:", error);
-    }
-  }, [currentTrack, isPlaying]);
-
-  const rotateRepeateState = useCallback(async () => {
-    if (!currentTrack) return;
-    const state = ["off", "context", "track"];
-    try {
-      const res = await fetch(
-        `https://api.spotify.com/v1/me/player/repeat?state=${
-          state[(state.indexOf(currentTrack.repeatState) + 1) % state.length]
-        }`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
-        }
-      );
-      if (res.status === 403) {
-        throw new Error("Spotify Premium is REQUIRED to change repeat state");
-      }
-      if (!res.ok) {
-        throw new Error("Failed to change repeat state");
-      }
-      setIsPlaying(!isPlaying);
-    } catch (error) {
-      toast.error("Failed to change repeat state:", {
-        description: error.message,
-      });
-      console.error("Error changing repeat state:", error);
-    }
-  }, [currentTrack, isPlaying]);
-
-  const togglePlay = useCallback(async () => {
-    if (!currentTrack) return;
-    try {
-      const res = await fetch(
-        `https://api.spotify.com/v1/me/player/${isPlaying ? "pause" : "play"}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
-        }
-      );
-      if (res.status === 403) {
-        throw new Error("Spotify Premium is REQUIRED to toggle play/pause");
-      }
-      if (!res.ok) {
-        throw new Error("Failed to toggle play");
-      }
-      setIsPlaying(!isPlaying);
-    } catch (error) {
-      toast.error("Failed to toggle play:", { description: error.message });
-      console.error("Error toggling play/pause:", error);
-    }
-  }, [currentTrack, isPlaying]);
-
-  const skipToPrevious = useCallback(async () => {
-    if (!currentTrack) return;
-    try {
-      const res = await fetch("https://api.spotify.com/v1/me/player/previous", {
-        method: "POST",
+  // Fetch data from Spotify API with authentication
+  const fetchWithAuth = useCallback(
+    async (url, options = {}) => {
+      if (!session?.accessToken) throw new Error("No access token available");
+      const res = await fetch(`${SPOTIFY_API_BASE}${url}`, {
+        ...options,
         headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
+          ...options.headers,
+          Authorization: `Bearer ${session.accessToken}`,
         },
       });
       if (res.status === 403) {
-        throw new Error("Spotify Premium is REQUIRED to skip to previous.");
+        const { error } = await res.json();
+        if (error.reason === "PREMIUM_REQUIRED") {
+          throw new Error("Spotify Premium is required for this action");
+        }
+        throw new Error("Invalid access token");
       }
       if (!res.ok) {
-        throw new Error("Failed to skip to previous.");
+        throw new Error(`API request failed with status ${res.status}`);
       }
-    } catch (error) {
-      toast.error("Failed to skip to previous:", {
-        description: error.message,
-      });
-      console.error("Error skipping to previous:", error);
-    }
-  }, [currentTrack]);
+      return res;
+    },
+    [session?.accessToken]
+  );
 
-  const skipToNext = useCallback(async () => {
-    if (!currentTrack) return;
+  // Generic handler for Spotify actions with error handling and track refresh
+  const handleSpotifyAction = useCallback(async (action, errorMessage) => {
     try {
-      const res = await fetch("https://api.spotify.com/v1/me/player/next", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-      });
-      if (res.status === 403) {
-        throw new Error("Spotify Premium is REQUIRED to skip to next.");
-      }
-      if (!res.ok) {
-        throw new Error("Failed to skip to next");
-      }
+      await action();
+      await fetchCurrentTrack(); // Refresh current track info after action
     } catch (error) {
-      toast.error("Failed to skip to next:", { description: error.message });
-      console.error("Error skipping to next:", error);
+      toast.error(errorMessage, { description: error.message });
+      console.error(errorMessage, error);
     }
-  }, [currentTrack]);
+  }, []);
 
+  // Toggle shuffle mode for the current playback
+  const toggleShuffle = useCallback(
+    () =>
+      handleSpotifyAction(
+        () =>
+          fetchWithAuth(
+            `/me/player/shuffle?state=${!playerState.currentTrack
+              ?.shuffleState}`,
+            { method: "PUT" }
+          ),
+        "Failed to toggle shuffle"
+      ),
+    [fetchWithAuth, playerState.currentTrack?.shuffleState, handleSpotifyAction]
+  );
+
+  // Rotate through repeat states: off -> context -> track -> off
+  const rotateRepeatState = useCallback(() => {
+    const states = ["off", "context", "track"];
+    const nextState =
+      states[
+        (states.indexOf(playerState.currentTrack?.repeatState) + 1) %
+          states.length
+      ];
+    return handleSpotifyAction(
+      () =>
+        fetchWithAuth(`/me/player/repeat?state=${nextState}`, {
+          method: "PUT",
+        }),
+      "Failed to change repeat state"
+    );
+  }, [
+    fetchWithAuth,
+    playerState.currentTrack?.repeatState,
+    handleSpotifyAction,
+  ]);
+
+  // Toggle play/pause for the current track
+  const togglePlay = useCallback(
+    () =>
+      handleSpotifyAction(
+        () =>
+          fetchWithAuth(
+            `/me/player/${playerState.isPlaying ? "pause" : "play"}`,
+            { method: "PUT" }
+          ),
+        "Failed to toggle play"
+      ),
+    [fetchWithAuth, playerState.isPlaying, handleSpotifyAction]
+  );
+
+  // Skip to the previous track in the queue
+  const skipToPrevious = useCallback(
+    () =>
+      handleSpotifyAction(
+        () => fetchWithAuth("/me/player/previous", { method: "POST" }),
+        "Failed to skip to previous"
+      ),
+    [fetchWithAuth, handleSpotifyAction]
+  );
+
+  // Skip to the next track in the queue
+  const skipToNext = useCallback(
+    () =>
+      handleSpotifyAction(
+        () => fetchWithAuth("/me/player/next", { method: "POST" }),
+        "Failed to skip to next"
+      ),
+    [fetchWithAuth, handleSpotifyAction]
+  );
+
+  // Fetch the currently playing track information
   const fetchCurrentTrack = useCallback(async () => {
     try {
-      const res = await fetch("https://api.spotify.com/v1/me/player", {
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-      });
-
+      const res = await fetchWithAuth("/me/player");
       if (res.status === 204) {
-        setCurrentTrack(null);
+        setPlayerState((prev) =>
+          prev.currentTrack ? { ...prev, currentTrack: null } : prev
+        );
         return;
       }
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch current track");
-      }
-
       const data = await res.json();
-
       if (data?.currently_playing_type === "track") {
+        // Extract relevant track information
         const track = {
           name: data.item.name,
           link: data.item.external_urls.spotify,
@@ -187,160 +169,143 @@ export const SpotifyProvider = ({ children }) => {
           explicit: data.item.explicit,
           popularity: data.item.popularity,
         };
-
-        setCurrentTrack(track);
-        setProgress(track.progressMs);
-        setIsPlaying(track.isPlaying);
+        setPlayerState((prev) => ({
+          ...prev,
+          currentTrack: track,
+          progress: track.progressMs,
+          isPlaying: track.isPlaying,
+        }));
       }
     } catch (error) {
       console.error("Error fetching current track:", error);
     }
-  }, [session]);
+  }, [fetchWithAuth]);
 
-  const fetchCurrentPalette = useCallback(async () => {
-    if (!currentTrack?.album?.images[2]?.url) return;
-    document.title = `${currentTrack.name} - ${currentTrack.artists
-      .map((artist) => artist.name)
-      .join(", ")} | Spotify Web Player`;
+  // Extract color palette from the current track's album art
+  const fetchCurrentPalette = useCallback(async (imageUrl) => {
+    if (!imageUrl) return;
+
     try {
-      const colors = await extractColors(currentTrack.album.images[2].url, {
+      const colors = await extractColors(imageUrl, {
         crossOrigin: "Anonymous",
-        // You can add more options here as needed
       });
-      setCurrentPalette(colors);
+      setPlayerState((prev) => ({ ...prev, currentPalette: colors }));
+
+      // Update favicon to current album art
       const link =
         document.querySelector("link[rel~='icon']") ||
         document.createElement("link");
       link.type = "image/png";
       link.rel = "shortcut icon";
-      link.href = currentTrack.album.images[2].url;
+      link.href = imageUrl;
       document.getElementsByTagName("head")[0].appendChild(link);
     } catch (error) {
       console.error("Error extracting colors:", error);
-      setCurrentPalette(null);
+      setPlayerState((prev) => ({ ...prev, currentPalette: null }));
     }
-  }, [currentTrack?.album?.images[2]?.url]);
+  }, []);
 
+  // Fetch current track periodically when session is active
   useEffect(() => {
     if (session?.accessToken) {
+      // fetch the current track every 2 seconds (Rate Limit: unlimited??)
       fetchCurrentTrack();
       const interval = setInterval(fetchCurrentTrack, 2000);
       return () => clearInterval(interval);
     }
-  }, [fetchCurrentTrack]);
+  }, [fetchCurrentTrack, session?.accessToken]);
 
+  // Load TV mode setting from localStorage on initial render
   useEffect(() => {
     const storedTvMode = localStorage.getItem("tvMode");
     if (storedTvMode) {
-      setTvMode(storedTvMode === "true");
+      setPlayerState((prev) => ({ ...prev, tvMode: storedTvMode === "true" }));
     }
   }, []);
 
-  const toggleTvMode = () => {
-    const newTvMode = !tvMode;
-    setTvMode(newTvMode);
-    localStorage.setItem("tvMode", newTvMode);
-  };
-
-  // TODO: improve this code
-  // useEffect(() => {
-  //   const handleNewSong = async () => {
-  //     if (currentTrack.durationMs - currentTrack.progressMs < 5000) {
-  //       await new Promise((resolve) =>
-  //         setTimeout(resolve, currentTrack.durationMs - currentTrack.progressMs)
-  //       );
-  //       fetchCurrentTrack();
-  //     }
-  //   };
-  //   if (session?.accessToken) {
-  //     if (currentTrack && isPlaying) {
-  //       handleNewSong();
-  //     }
-  //   }
-  // }, [currentTrack, isPlaying]);
-
+  // Update document title and fetch color palette when current track changes
   useEffect(() => {
-    fetchCurrentPalette();
-  }, [fetchCurrentPalette]);
+    const currentAlbumImageUrl =
+      playerState.currentTrack?.album?.images[2]?.url;
+    if (currentAlbumImageUrl) {
+      document.title = `${
+        playerState.currentTrack.name
+      } - ${playerState.currentTrack.artists
+        .map((artist) => artist.name)
+        .join(", ")} | Spotify Web Player`;
+      fetchCurrentPalette(currentAlbumImageUrl);
+    }
+  }, [playerState.currentTrack?.album?.images[2]?.url, fetchCurrentPalette]);
 
+  // Update progress of currently playing track
   useEffect(() => {
-    if (!isPlaying || !currentTrack) return;
+    if (!playerState.isPlaying || !playerState.currentTrack) return;
 
     const progressInterval = setInterval(() => {
-      setProgress((prevProgress) => {
-        if (prevProgress < currentTrack.durationMs) {
-          return prevProgress + 1000;
-        }
-        return prevProgress;
-      });
+      setPlayerState((prev) => ({
+        ...prev,
+        progress:
+          prev.progress < prev.currentTrack.durationMs
+            ? prev.progress + 1000
+            : prev.progress,
+      }));
     }, 1000);
 
     return () => clearInterval(progressInterval);
-  }, [currentTrack, isPlaying]);
+  }, [playerState.currentTrack, playerState.isPlaying]);
 
-  const progressPercentage = useMemo(
-    () => (progress / (currentTrack?.durationMs || 1)) * 100,
-    [progress, currentTrack]
-  );
+  // Toggle TV mode on/off and save to localStorage
+  const toggleTvMode = useCallback(() => {
+    setPlayerState((prev) => {
+      const newTvMode = !prev.tvMode;
+      localStorage.setItem("tvMode", newTvMode);
+      return { ...prev, tvMode: newTvMode };
+    });
+  }, []);
 
+  // Toggle fullscreen mode on/off
   const toggleFullScreen = useCallback(() => {
     let html = document.documentElement;
 
-    /* View in fullscreen */
     function openFullscreen() {
       if (html.requestFullscreen) {
         html.requestFullscreen();
       } else if (html.webkitRequestFullscreen) {
-        /* Safari */
         html.webkitRequestFullscreen();
       } else if (html.msRequestFullscreen) {
-        /* IE11 */
         html.msRequestFullscreen();
       }
     }
 
-    /* Close fullscreen */
     function closeFullscreen() {
       if (document.exitFullscreen) {
         document.exitFullscreen();
       } else if (document.webkitExitFullscreen) {
-        /* Safari */
         document.webkitExitFullscreen();
       } else if (document.msExitFullscreen) {
-        /* IE11 */
         document.msExitFullscreen();
       }
     }
-
-    if (fullScreen) {
+    if (playerState?.fullScreen) {
       closeFullscreen();
-      setFullScreen(false);
     } else {
       openFullscreen();
-      setFullScreen(true);
     }
-  }, [fullScreen]);
 
+    setPlayerState((prev) => {
+      return { ...prev, fullScreen: !prev.fullScreen };
+    });
+  }, [playerState?.fullScreen]);
+
+  // Seek to a specific position within the current track
   const seekTrack = useCallback(
     async (positionMs) => {
-      if (!currentTrack) return;
+      if (!playerState.currentTrack) return;
       try {
-        const res = await fetch(
-          `https://api.spotify.com/v1/me/player/seek?position_ms=${positionMs}`,
-          {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${session?.accessToken}`,
-            },
-          }
-        );
-        if (res.status === 403) {
-          throw new Error("Spotify Premium is REQUIRED to seek within a track");
-        }
-        if (!res.ok) {
-          throw new Error("Failed to seek within track");
-        }
-        setProgress(positionMs);
+        await fetchWithAuth(`/me/player/seek?position_ms=${positionMs}`, {
+          method: "PUT",
+        });
+        setPlayerState((prev) => ({ ...prev, progress: positionMs }));
       } catch (error) {
         toast.error("Failed to seek within track:", {
           description: error.message,
@@ -348,42 +313,34 @@ export const SpotifyProvider = ({ children }) => {
         console.error("Error seeking within track:", error);
       }
     },
-    [currentTrack, session?.accessToken]
+    [fetchWithAuth, playerState.currentTrack]
   );
 
+  // Memoize the context value to prevent unnecessary re-renders
   const value = useMemo(
     () => ({
-      currentTrack,
-      isPlaying,
-      progress,
-      currentPalette,
-      progressPercentage,
-      fullScreen,
-      tvMode,
+      ...playerState,
+      progressPercentage:
+        (playerState.progress / (playerState.currentTrack?.durationMs || 1)) *
+        100,
       togglePlay,
       skipToPrevious,
       skipToNext,
       toggleShuffle,
-      rotateRepeateState,
+      rotateRepeatState,
       toggleFullScreen,
       toggleTvMode,
       seekTrack,
     }),
     [
-      currentTrack,
-      isPlaying,
-      progress,
-      currentPalette,
-      progressPercentage,
-      fullScreen,
-      tvMode,
-      toggleTvMode,
+      playerState,
       togglePlay,
       skipToPrevious,
       skipToNext,
       toggleShuffle,
-      rotateRepeateState,
+      rotateRepeatState,
       toggleFullScreen,
+      toggleTvMode,
       seekTrack,
     ]
   );
@@ -393,6 +350,7 @@ export const SpotifyProvider = ({ children }) => {
   );
 };
 
+// Custom hook to access Spotify context
 export const useSpotify = () => {
   const context = useContext(SpotifyContext);
   if (context === undefined) {
