@@ -1,6 +1,13 @@
 "use client";
 
-import { Button, Transition } from "@headlessui/react";
+import {
+  Button,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+  Transition,
+} from "@headlessui/react";
 import {
   ArrowRightEndOnRectangleIcon,
   Bars3Icon,
@@ -75,12 +82,6 @@ export default function Navigation() {
       label: "Exit App",
       onClick: () => signOut(),
     },
-    {
-      icon: (
-        <Bars3Icon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75" />
-      ),
-      label: "Command Menu",
-    },
   ];
 
   return (
@@ -104,6 +105,80 @@ export default function Navigation() {
                 {e.divedeAfter && <div className="bg-zinc-500/25 h-5 w-px" />}
               </Fragment>
             ))}
+            <Menu>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <MenuButton className="p-2 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25 transition ease-out duration-75 rounded-full outline-none relative group">
+                    <Bars3Icon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 duration-75 ease-out transition" />
+                  </MenuButton>
+                </TooltipTrigger>
+                <TooltipContent>Shortcuts</TooltipContent>
+              </Tooltip>
+
+              <MenuItems
+                transition
+                anchor="top"
+                className="relative z-50 [--anchor-gap:8px] origin-top-right bg-zinc-900/25 rounded-xl p-1 text-sm text-white transition ease-out outline-none data-[closed]:scale-50 data-[closed]:translate-y-1/2 data-[closed]:-translate-x-1/4 data-[closed]:opacity-0"
+              >
+                <MenuItem>
+                  <Button className="group flex w-full items-center justify-between gap-3 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
+                    Toggle Shuffle
+                    <kbd className="text-xs text-zinc-200 bg-zinc-500/25 px-1 py-0.5 rounded">
+                      s
+                    </kbd>
+                  </Button>
+                </MenuItem>
+                <MenuItem>
+                  <Button className="group flex w-full items-center justify-between gap-3 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
+                    Previous/Next
+                    <kbd className="text-xs text-zinc-200 bg-zinc-500/25 px-1 py-0.5 rounded">
+                      ←/→
+                    </kbd>
+                  </Button>
+                </MenuItem>
+                <MenuItem>
+                  <Button className="group flex w-full items-center justify-between gap-3 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
+                    Pause/Play
+                    <kbd className="text-xs text-zinc-200 bg-zinc-500/25 px-1 py-0.5 rounded">
+                      spacebar
+                    </kbd>
+                  </Button>
+                </MenuItem>
+                <MenuItem>
+                  <Button className="group flex w-full items-center justify-between gap-3 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
+                    Backwards/Forwards
+                    <kbd className="text-xs text-zinc-200 bg-zinc-500/25 px-1 py-0.5 rounded">
+                      ⇧ + ←/→
+                    </kbd>
+                  </Button>
+                </MenuItem>
+                <MenuItem>
+                  <Button className="group flex w-full items-center justify-between gap-3 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
+                    Repeat Mode
+                    <kbd className="text-xs text-zinc-200 bg-zinc-500/25 px-1 py-0.5 rounded">
+                      r
+                    </kbd>
+                  </Button>
+                </MenuItem>
+                <div className="my-1 h-px bg-white/5" />
+                <MenuItem>
+                  <Button className="group flex w-full items-center justify-between gap-2 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
+                    Toggle Fullscreen
+                    <kbd className="text-xs text-zinc-200 bg-zinc-500/25 px-1 py-0.5 rounded">
+                      f
+                    </kbd>
+                  </Button>
+                </MenuItem>
+                <MenuItem>
+                  <Button className="group flex w-full items-center justify-between gap-2 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
+                    Toggle TV Mode
+                    <kbd className="text-xs text-zinc-200 bg-zinc-500/25 px-1 py-0.5 rounded">
+                      t
+                    </kbd>
+                  </Button>
+                </MenuItem>
+              </MenuItems>
+            </Menu>
           </div>
         </div>
       </Transition>
