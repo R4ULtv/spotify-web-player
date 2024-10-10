@@ -1,6 +1,14 @@
 "use client";
 
-import { Button, Transition } from "@headlessui/react";
+import {
+  Button,
+  Description,
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+} from "@headlessui/react";
 import { Fragment, useMemo, useRef, useEffect, useState } from "react";
 import { useSpotify } from "@/components/providers/SpotifyProvider";
 import {
@@ -251,6 +259,7 @@ export default function SpotifyPlayer() {
     toggleShuffle,
     rotateRepeatState,
     toggleFullScreen,
+    toggleTvMode,
     fullScreen,
     tvMode,
     seekTrack,
@@ -260,6 +269,21 @@ export default function SpotifyPlayer() {
 
   const [sliderValue, setSliderValue] = useState(progressPercentage);
   const [isDragging, setIsDragging] = useState(false);
+
+  const [isPortrait, setIsPortrait] = useState(false);
+  const [showRotateDialog, setShowRotateDialog] = useState(false);
+
+  useEffect(() => {
+    const checkOrientation = () => {
+      const isPortrait = window.innerHeight > window.innerWidth;
+      setIsPortrait(isPortrait);
+      setShowRotateDialog(tvMode && isPortrait);
+    };
+
+    checkOrientation();
+    window.addEventListener("resize", checkOrientation);
+    return () => window.removeEventListener("resize", checkOrientation);
+  }, [tvMode]);
 
   useEffect(() => {
     if (!isDragging) {
@@ -283,7 +307,9 @@ export default function SpotifyPlayer() {
     return (
       <Button
         onClick={toggleFullScreen}
-        className={`relative shrink-0 w-full md:h-full md:w-auto overflow-hidden outline-none rounded-xl group`}
+        className={`relative shrink-0 overflow-hidden outline-none rounded-xl group ${
+          !tvMode ? "md:h-full md:w-auto" : "w-auto h-full"
+        }`}
       >
         <img
           alt="Album Cover"
@@ -340,7 +366,7 @@ export default function SpotifyPlayer() {
                 <Button
                   onClick={() => setIsOpenDrawer(true)}
                   className={`p-1 outline-none relative group text-zinc-200 ${
-                    tvMode && "scale-150"
+                    tvMode ? "scale-150" : ""
                   }`}
                 >
                   <RecentlyTracksIcon />
@@ -350,7 +376,7 @@ export default function SpotifyPlayer() {
             </Tooltip>
             <div
               className={`flex items-center justify-center gap-1 ${
-                tvMode && "gap-4"
+                tvMode ? "gap-4" : ""
               }`}
             >
               <Tooltip>
@@ -358,7 +384,7 @@ export default function SpotifyPlayer() {
                   <Button
                     onClick={toggleShuffle}
                     className={`mr-2 p-1 outline-none relative group text-zinc-400 ${
-                      tvMode && "scale-150"
+                      tvMode ? "scale-150" : ""
                     }`}
                   >
                     <ShuffleIcon shuffleState={currentTrack.shuffleState} />
@@ -374,7 +400,7 @@ export default function SpotifyPlayer() {
                   <Button
                     onClick={isPlaying ? skipToPrevious : null}
                     className={`p-1 outline-none relative group text-zinc-300 ${
-                      tvMode && "scale-150"
+                      tvMode ? "scale-150" : ""
                     }`}
                   >
                     <BackwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
@@ -387,7 +413,7 @@ export default function SpotifyPlayer() {
                   <Button
                     onClick={togglePlay}
                     className={`p-1 outline-none relative group text-zinc-200 ${
-                      tvMode && "scale-150"
+                      tvMode ? "scale-150" : ""
                     }`}
                   >
                     {isPlaying ? (
@@ -404,7 +430,7 @@ export default function SpotifyPlayer() {
                   <Button
                     onClick={isPlaying ? skipToNext : null}
                     className={`p-1 outline-none relative group text-zinc-300 ${
-                      tvMode && "scale-150"
+                      tvMode ? "scale-150" : ""
                     }`}
                   >
                     <ForwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
@@ -417,7 +443,7 @@ export default function SpotifyPlayer() {
                   <Button
                     onClick={rotateRepeatState}
                     className={`ml-2 p-1 outline-none relative group text-zinc-400 ${
-                      tvMode && "scale-150"
+                      tvMode ? "scale-150" : ""
                     }`}
                   >
                     <RepeatIcon repeatState={currentTrack.repeatState} />
@@ -433,7 +459,7 @@ export default function SpotifyPlayer() {
               <TooltipTrigger asChild>
                 <Button
                   className={`p-1 outline-none relative group text-zinc-200 ${
-                    tvMode && "scale-150"
+                    tvMode ? "scale-150" : ""
                   }`}
                 >
                   <QueueIcon />
@@ -459,35 +485,98 @@ export default function SpotifyPlayer() {
   if (!currentTrack) return null;
 
   return (
-    <Transition show={!!currentTrack && !isPlayingAds} as={Fragment} appear>
-      <div
-        className={`absolute flex gap-3 flex-col items-center justify-center transition ease-out data-[closed]:scale-50 data-[closed]:opacity-0 ${
-          tvMode ? "inset-1/16" : "inset-2"
-        }`}
-      >
+    <>
+      <Transition show={!!currentTrack && !isPlayingAds} as={Fragment} appear>
         <div
-          className={`bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl ${
-            tvMode ? "w-full h-3/5" : "sm:max-w-md w-full"
+          className={`absolute flex gap-3 flex-col items-center justify-center transition ease-out data-[closed]:scale-50 data-[closed]:opacity-0 ${
+            tvMode ? "inset-1/16" : "inset-2"
           }`}
         >
-          <div className="flex items-center gap-3 flex-col md:flex-row h-full">
-            {albumCover}
+          <div
+            className={`bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl ${
+              tvMode ? "w-full h-3/5" : "sm:max-w-md w-full"
+            }`}
+          >
             <div
-              className={`truncate w-full ${
-                tvMode && "h-full flex flex-col justify-around gap-2"
+              className={`flex items-center gap-3 h-full ${
+                !tvMode ? "flex-col md:flex-row" : ""
               }`}
             >
-              <TrackInfo currentTrack={currentTrack} tvMode={tvMode} />
-              {tvMode && trackControls}
+              {albumCover}
+              <div
+                className={`truncate w-full ${
+                  tvMode ? "h-full flex flex-col justify-around gap-2" : ""
+                }`}
+              >
+                <TrackInfo currentTrack={currentTrack} tvMode={tvMode} />
+                {tvMode && trackControls}
+              </div>
             </div>
           </div>
+          {!tvMode && (
+            <div className="sm:max-w-sm w-full bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl">
+              {trackControls}
+            </div>
+          )}
         </div>
-        {!tvMode && (
-          <div className="sm:max-w-md w-full bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl">
-            {trackControls}
-          </div>
-        )}
-      </div>
-    </Transition>
+      </Transition>
+
+      <Dialog
+        open={showRotateDialog}
+        onClose={() => {
+          if (!isPortrait) {
+            setShowRotateDialog(false);
+          }
+        }}
+      >
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-black/40 z-50 data-[closed]:opacity-0 ease-out duration-75"
+        />
+
+        <div className="fixed inset-0 flex w-screen items-center justify-center p-4 z-50">
+          <DialogPanel
+            transition
+            className="w-full max-w-md overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl data-[closed]:opacity-0 data-[closed]:scale-50 ease-out duration-75"
+          >
+            <DialogTitle className="text-lg font-semibold leading-6 text-center text-gray-900">
+              Please Rotate Your Device
+            </DialogTitle>
+            <div className="mt-2">
+              <div className="flex items-center justify-center p-2">
+                <svg
+                  className="size-12 text-gray-500 animate-[spin_4s_linear_infinite]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                  <path d="M21 3v5h-5" />
+                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                  <path d="M8 16H3v5" />
+                </svg>
+              </div>
+              <Description className="text-center text-sm text-gray-500 text-balance">
+                For the best viewing experience in TV mode, please rotate your
+                device to landscape orientation.
+              </Description>
+
+              <Button
+                onClick={() => {
+                  toggleTvMode();
+                  setShowRotateDialog(false);
+                }}
+                className="mt-4 p-2 w-full bg-zinc-200 text-zinc-900 text-sm font-semibold rounded-lg"
+              >
+                Disable TV Mode
+              </Button>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
+    </>
   );
 }
