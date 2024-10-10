@@ -14,6 +14,12 @@ import {
 import { InfiniteSlider } from "@/components/animations/infinite-slider";
 import { Slider } from "@/components/ui/slider";
 import { formatTime } from "@/components/utils/formatting";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const RecentlyTracksIcon = () => (
   <svg
@@ -290,7 +296,7 @@ export default function SpotifyPlayer() {
               : "w-full md:w-auto md:size-24"
           }`}
         />
-        <div className="invisible group-data-[hover]:visible transition ease-out flex items-center justify-center absolute inset-0 bg-transparent group-data-[hover]:bg-zinc-900/50 text-zinc-200">
+        <div className="invisible group-data-[hover]:visible group-data-[focus]:visible transition ease-out flex items-center justify-center absolute inset-0 bg-transparent group-data-[hover]:bg-zinc-900/50 group-data-[focus]:bg-zinc-900/50 text-zinc-200">
           {fullScreen ? (
             <ArrowsPointingInIcon className="size-5" />
           ) : (
@@ -304,79 +310,116 @@ export default function SpotifyPlayer() {
   const trackControls = useMemo(() => {
     if (!currentTrack) return null;
     return (
-      <div className="w-full">
-        <div className="relative">
-          <Slider
-            value={[sliderValue]}
-            onValueChange={handleSliderChange}
-            onValueCommit={handleSliderCommit}
-            min={0}
-            max={100}
-            step={1}
-          />
-          <div className="w-full flex justify-between text-xs text-zinc-300 mt-1">
-            <span className="hover:text-zinc-200 transition ease-out duration-75 select-none">
-              {formatTime(progress)}
-            </span>
-            <span className="hover:text-zinc-200 transition ease-out duration-75 select-none">
-              {formatTime(currentTrack.durationMs)}
-            </span>
+      <TooltipProvider>
+        <div className="w-full">
+          <div className="relative">
+            <Slider
+              value={[sliderValue]}
+              onValueChange={handleSliderChange}
+              onValueCommit={handleSliderCommit}
+              min={0}
+              max={100}
+              step={1}
+            />
+            <div className="w-full flex justify-between text-xs text-zinc-300 mt-1">
+              <span className="hover:text-zinc-200 transition ease-out duration-75 select-none">
+                {formatTime(progress)}
+              </span>
+              <span className="hover:text-zinc-200 transition ease-out duration-75 select-none">
+                {formatTime(currentTrack.durationMs)}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={() => setIsOpenDrawer(true)}
+                  className="p-1 outline-none relative group text-zinc-200"
+                >
+                  <RecentlyTracksIcon />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Recently Played</TooltipContent>
+            </Tooltip>
+            <div className="flex items-center justify-center gap-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={toggleShuffle}
+                    className="mr-2 p-1 outline-none relative group text-zinc-400"
+                  >
+                    <ShuffleIcon shuffleState={currentTrack.shuffleState} />
+                    {currentTrack.shuffleState && (
+                      <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Shuffle</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={isPlaying ? skipToPrevious : null}
+                    className="p-1 outline-none relative group text-zinc-300"
+                  >
+                    <BackwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Previous</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={togglePlay}
+                    className="p-1 outline-none relative group text-zinc-200"
+                  >
+                    {isPlaying ? (
+                      <PauseIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
+                    ) : (
+                      <PlayIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{isPlaying ? "Pause" : "Play"}</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={isPlaying ? skipToNext : null}
+                    className="p-1 outline-none relative group text-zinc-300"
+                  >
+                    <ForwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Next</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={rotateRepeatState}
+                    className="ml-2 p-1 outline-none relative group text-zinc-400"
+                  >
+                    <RepeatIcon repeatState={currentTrack.repeatState} />
+                    {currentTrack.repeatState !== "off" && (
+                      <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Repeat</TooltipContent>
+              </Tooltip>
+            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button className="p-1 outline-none relative group text-zinc-200">
+                  <QueueIcon />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Queue</TooltipContent>
+            </Tooltip>
           </div>
         </div>
-        <div className="flex items-center justify-between">
-          <Button
-            onClick={() => setIsOpenDrawer(true)}
-            className="p-1 outline-none relative group text-zinc-200"
-          >
-            <RecentlyTracksIcon />
-          </Button>
-          <div className="flex items-center justify-center gap-1">
-            <Button
-              onClick={toggleShuffle}
-              className="mr-2 p-1 outline-none relative group text-zinc-400"
-            >
-              <ShuffleIcon shuffleState={currentTrack.shuffleState} />
-              {currentTrack.shuffleState && (
-                <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
-              )}
-            </Button>
-            <Button
-              onClick={isPlaying ? skipToPrevious : null}
-              className="p-1 outline-none relative group text-zinc-300"
-            >
-              <BackwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
-            </Button>
-            <Button
-              onClick={togglePlay}
-              className="p-1 outline-none relative group text-zinc-200"
-            >
-              {isPlaying ? (
-                <PauseIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
-              ) : (
-                <PlayIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
-              )}
-            </Button>
-            <Button
-              onClick={isPlaying ? skipToNext : null}
-              className="p-1 outline-none relative group text-zinc-300"
-            >
-              <ForwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
-            </Button>
-            <Button
-              onClick={rotateRepeatState}
-              className="ml-2 p-1 outline-none relative group text-zinc-400"
-            >
-              <RepeatIcon repeatState={currentTrack.repeatState} />
-              {currentTrack.repeatState !== "off" && (
-                <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
-              )}
-            </Button>
-          </div>
-          <Button className="p-1 outline-none relative group text-zinc-200">
-            <QueueIcon />
-          </Button>
-        </div>
-      </div>
+      </TooltipProvider>
     );
   }, [
     currentTrack,
