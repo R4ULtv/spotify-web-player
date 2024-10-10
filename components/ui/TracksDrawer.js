@@ -2,20 +2,138 @@
 
 import { Drawer } from "vaul";
 import moment from "moment";
+import { useState, useMemo } from "react";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+  Description,
+} from "@headlessui/react";
 
 import { useSpotify } from "@/components/providers/SpotifyProvider";
-import { formatTime } from "@/components/utils/formatting";
-import { useState } from "react";
+import { formatTime, useMediaQuery } from "@/components/utils/hooks";
 
 export default function TracksDrawer() {
-  const snapPoints = [0.6, 1];
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const snapPoints = useMemo(() => [0.6, 1], []);
   const [snap, setSnap] = useState(snapPoints[0]);
   const { isOpenDrawer, setIsOpenDrawer, recentlyTracks } = useSpotify();
 
+  const TrackList = useMemo(
+    () => (
+      <div className="flex flex-col gap-2">
+        {recentlyTracks.map((track, index) => (
+          <TrackItem key={index} track={track} />
+        ))}
+      </div>
+    ),
+    [recentlyTracks]
+  );
+
+  if (isDesktop) {
+    return (
+      <DesktopDialog
+        isOpen={isOpenDrawer}
+        onClose={() => setIsOpenDrawer(false)}
+        title="Recently Played Tracks"
+        description={getDescription(recentlyTracks)}
+        content={TrackList}
+      />
+    );
+  }
+
+  return (
+    <MobileDrawer
+      isOpen={isOpenDrawer}
+      onClose={() => setIsOpenDrawer(false)}
+      snapPoints={snapPoints}
+      snap={snap}
+      setSnap={setSnap}
+      title="Recently Played Tracks"
+      description={getDescription(recentlyTracks)}
+      content={TrackList}
+    />
+  );
+}
+
+function TrackItem({ track }) {
+  return (
+    <div className="flex items-center justify-between gap-2 w-full">
+      <div className="flex items-center gap-2 min-w-0 flex-1">
+        <img
+          src={track.album.images[0].url}
+          alt={track.name}
+          className="size-10 flex-shrink-0 rounded-md"
+        />
+        <div className="flex flex-col min-w-0 flex-1">
+          <span className="text-zinc-200 font-semibold text-sm truncate">
+            {track.name}
+          </span>
+          <span className="text-zinc-400 text-xs truncate">
+            {track.artists.map((artist) => artist.name).join(", ")}
+          </span>
+        </div>
+      </div>
+      <div className="flex flex-col items-end justify-center shrink-0">
+        <span className="text-zinc-200 text-xs">
+          {formatTime(track.durationMs)}
+        </span>
+        <span className="text-zinc-400 text-xs">
+          {moment(track.playedAt).fromNow()}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function getDescription(tracks) {
+  return tracks.length
+    ? `Last ${tracks.length} tracks`
+    : "No recently played tracks";
+}
+
+function DesktopDialog({ isOpen, onClose, title, description, content }) {
+  return (
+    <Dialog open={isOpen} onClose={onClose}>
+      <DialogBackdrop
+        transition
+        className="fixed inset-0 bg-black/40 z-20 data-[closed]:opacity-0 ease-out duration-150"
+      />
+      <div className="fixed inset-0 flex w-screen items-center justify-center p-4 z-20">
+        <DialogPanel
+          transition
+          className="bg-zinc-900/50 backdrop-blur-xl flex flex-col rounded-2xl max-w-2xl w-full max-h-[90%] h-auto outline-none z-20 data-[closed]:opacity-0 data-[closed]:scale-50 ease-out duration-150"
+        >
+          <div className="p-6 flex-1 overflow-y-auto">
+            <DialogTitle className="font-bold text-gray-200">
+              {title}
+            </DialogTitle>
+            <Description className="text-zinc-400 text-sm mb-2">
+              {description}
+            </Description>
+            {content}
+          </div>
+        </DialogPanel>
+      </div>
+    </Dialog>
+  );
+}
+
+function MobileDrawer({
+  isOpen,
+  onClose,
+  snapPoints,
+  snap,
+  setSnap,
+  title,
+  description,
+  content,
+}) {
   return (
     <Drawer.Root
-      open={isOpenDrawer}
-      onClose={() => setIsOpenDrawer(false)}
+      open={isOpen}
+      onClose={onClose}
       snapPoints={snapPoints}
       activeSnapPoint={snap}
       setActiveSnapPoint={setSnap}
@@ -23,16 +141,13 @@ export default function TracksDrawer() {
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-20" />
-        <Drawer.Content
-          data-testid="content"
-          className="bg-zinc-900/50 backdrop-blur-xl flex flex-col rounded-t-2xl mt-24 h-[98%] fixed bottom-0 inset-x-0 mx-auto max-w-2xl outline-none z-20"
-        >
+        <Drawer.Content className="bg-zinc-900/50 backdrop-blur-xl flex flex-col rounded-t-2xl mt-24 h-[98%] fixed bottom-0 inset-x-0 mx-auto w-full md:max-w-2xl outline-none z-20">
           <div
             className={`p-6 flex-1 ${
               snap === 1 ? "overflow-y-auto" : "overflow-y-hidden"
             }`}
           >
-            <div className="max-w-2xl mx-auto">
+            <div className="w-full">
               <div
                 aria-hidden
                 className={`mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-400 mb-4 ${
@@ -40,48 +155,12 @@ export default function TracksDrawer() {
                 }`}
               />
               <Drawer.Title className="font-bold text-gray-200">
-                Recently Played Tracks
+                {title}
               </Drawer.Title>
               <Drawer.Description className="text-zinc-400 text-sm mb-2">
-                {recentlyTracks.length
-                  ? `Last ${recentlyTracks.length} tracks`
-                  : "No recently played tracks"}
+                {description}
               </Drawer.Description>
-
-              <div className="flex flex-col gap-2">
-                {recentlyTracks.map((track, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between gap-2 w-full"
-                  >
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <img
-                        src={track.album.images[0].url}
-                        alt={track.name}
-                        className="size-10 flex-shrink-0 rounded-md"
-                      />
-                      <div className="flex flex-col min-w-0 flex-1">
-                        <span className="text-zinc-200 font-semibold text-sm truncate">
-                          {track.name}
-                        </span>
-                        <span className="text-zinc-400 text-xs truncate">
-                          {track.artists
-                            .map((artist) => artist.name)
-                            .join(", ")}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end justify-center shrink-0">
-                      <span className="text-zinc-200 text-xs">
-                        {formatTime(track.durationMs)}
-                      </span>
-                      <span className="text-zinc-400 text-xs">
-                        {moment(track.playedAt).fromNow()}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              {content}
             </div>
           </div>
         </Drawer.Content>
