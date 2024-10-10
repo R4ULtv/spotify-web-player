@@ -308,7 +308,7 @@ export default function SpotifyPlayer() {
       <Button
         onClick={toggleFullScreen}
         className={`relative shrink-0 overflow-hidden outline-none rounded-xl group ${
-          !tvMode ? "md:h-full md:w-auto" : "w-auto h-full"
+          !tvMode ? "w-full md:h-full md:w-auto" : "w-auto h-full"
         }`}
       >
         <img
@@ -488,7 +488,7 @@ export default function SpotifyPlayer() {
     <>
       <Transition show={!!currentTrack && !isPlayingAds} as={Fragment} appear>
         <div
-          className={`absolute flex gap-3 flex-col items-center justify-center transition ease-out data-[closed]:scale-50 data-[closed]:opacity-0 ${
+          className={`absolute flex gap-3 flex-col items-center justify-center transition-all ease-out data-[closed]:scale-50 data-[closed]:opacity-0 ${
             tvMode ? "inset-1/16" : "inset-2"
           }`}
         >
