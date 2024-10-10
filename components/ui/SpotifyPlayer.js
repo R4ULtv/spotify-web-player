@@ -21,7 +21,7 @@ import {
 } from "@heroicons/react/20/solid";
 import { InfiniteSlider } from "@/components/animations/infinite-slider";
 import { Slider } from "@/components/ui/slider";
-import { formatTime } from "@/components/utils/formatting";
+import { formatTime } from "@/components/utils/hooks";
 import {
   Tooltip,
   TooltipContent,
