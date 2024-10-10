@@ -5,20 +5,39 @@ import moment from "moment";
 
 import { useSpotify } from "@/components/providers/SpotifyProvider";
 import { formatTime } from "@/components/utils/formatting";
+import { useState } from "react";
 
 export default function TracksDrawer() {
+  const snapPoints = [0.3, 0.6, 1];
+  const [snap, setSnap] = useState(snapPoints[0]);
   const { isOpenDrawer, setIsOpenDrawer, recentlyTracks } = useSpotify();
 
   return (
-    <Drawer.Root open={isOpenDrawer} onOpenChange={setIsOpenDrawer}>
+    <Drawer.Root
+      open={isOpenDrawer}
+      onClose={() => setIsOpenDrawer(false)}
+      snapPoints={snapPoints}
+      activeSnapPoint={snap}
+      setActiveSnapPoint={setSnap}
+      fadeFromIndex={1}
+    >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-20" />
-        <Drawer.Content className="bg-zinc-900/50 backdrop-blur-xl flex flex-col rounded-t-2xl mt-24 h-1/2 fixed bottom-0 inset-x-0 mx-auto max-w-2xl outline-none z-20">
-          <div className="p-6 flex-1 overflow-y-auto">
+        <Drawer.Content
+          data-testid="content"
+          className="bg-zinc-900/50 backdrop-blur-xl flex flex-col rounded-t-2xl mt-24 h-[98%] fixed bottom-0 inset-x-0 mx-auto max-w-2xl outline-none z-20"
+        >
+          <div
+            className={`p-6 flex-1 ${
+              snap === 1 ? "overflow-y-auto" : "overflow-y-hidden"
+            }`}
+          >
             <div className="max-w-2xl mx-auto">
               <div
                 aria-hidden
-                className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-500 mb-4"
+                className={`mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-400 mb-4 ${
+                  snap === snapPoints[0] && "animate-bounce"
+                }`}
               />
               <Drawer.Title className="font-bold text-gray-200">
                 Recently Played Tracks
