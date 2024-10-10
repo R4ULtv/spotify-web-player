@@ -321,7 +321,11 @@ export default function SpotifyPlayer() {
               max={100}
               step={1}
             />
-            <div className="w-full flex justify-between text-xs text-zinc-300 mt-1">
+            <div
+              className={`w-full flex justify-between text-zinc-300 mt-1 ${
+                tvMode ? "text-base lg:text-xl" : "text-xs"
+              }`}
+            >
               <span className="hover:text-zinc-200 transition ease-out duration-75 select-none">
                 {formatTime(progress)}
               </span>
@@ -335,19 +339,27 @@ export default function SpotifyPlayer() {
               <TooltipTrigger asChild>
                 <Button
                   onClick={() => setIsOpenDrawer(true)}
-                  className="p-1 outline-none relative group text-zinc-200"
+                  className={`p-1 outline-none relative group text-zinc-200 ${
+                    tvMode && "scale-150"
+                  }`}
                 >
                   <RecentlyTracksIcon />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Recently Played</TooltipContent>
             </Tooltip>
-            <div className="flex items-center justify-center gap-1">
+            <div
+              className={`flex items-center justify-center gap-1 ${
+                tvMode && "gap-4"
+              }`}
+            >
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     onClick={toggleShuffle}
-                    className="mr-2 p-1 outline-none relative group text-zinc-400"
+                    className={`mr-2 p-1 outline-none relative group text-zinc-400 ${
+                      tvMode && "scale-150"
+                    }`}
                   >
                     <ShuffleIcon shuffleState={currentTrack.shuffleState} />
                     {currentTrack.shuffleState && (
@@ -361,7 +373,9 @@ export default function SpotifyPlayer() {
                 <TooltipTrigger asChild>
                   <Button
                     onClick={isPlaying ? skipToPrevious : null}
-                    className="p-1 outline-none relative group text-zinc-300"
+                    className={`p-1 outline-none relative group text-zinc-300 ${
+                      tvMode && "scale-150"
+                    }`}
                   >
                     <BackwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
                   </Button>
@@ -372,7 +386,9 @@ export default function SpotifyPlayer() {
                 <TooltipTrigger asChild>
                   <Button
                     onClick={togglePlay}
-                    className="p-1 outline-none relative group text-zinc-200"
+                    className={`p-1 outline-none relative group text-zinc-200 ${
+                      tvMode && "scale-150"
+                    }`}
                   >
                     {isPlaying ? (
                       <PauseIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
@@ -387,7 +403,9 @@ export default function SpotifyPlayer() {
                 <TooltipTrigger asChild>
                   <Button
                     onClick={isPlaying ? skipToNext : null}
-                    className="p-1 outline-none relative group text-zinc-300"
+                    className={`p-1 outline-none relative group text-zinc-300 ${
+                      tvMode && "scale-150"
+                    }`}
                   >
                     <ForwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
                   </Button>
@@ -398,7 +416,9 @@ export default function SpotifyPlayer() {
                 <TooltipTrigger asChild>
                   <Button
                     onClick={rotateRepeatState}
-                    className="ml-2 p-1 outline-none relative group text-zinc-400"
+                    className={`ml-2 p-1 outline-none relative group text-zinc-400 ${
+                      tvMode && "scale-150"
+                    }`}
                   >
                     <RepeatIcon repeatState={currentTrack.repeatState} />
                     {currentTrack.repeatState !== "off" && (
@@ -411,7 +431,11 @@ export default function SpotifyPlayer() {
             </div>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button className="p-1 outline-none relative group text-zinc-200">
+                <Button
+                  className={`p-1 outline-none relative group text-zinc-200 ${
+                    tvMode && "scale-150"
+                  }`}
+                >
                   <QueueIcon />
                 </Button>
               </TooltipTrigger>
@@ -429,6 +453,7 @@ export default function SpotifyPlayer() {
     skipToPrevious,
     skipToNext,
     togglePlay,
+    tvMode,
   ]);
 
   if (!currentTrack) return null;
@@ -442,7 +467,7 @@ export default function SpotifyPlayer() {
       >
         <div
           className={`bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl ${
-            tvMode ? "w-full h-1/2" : "sm:max-w-md w-full"
+            tvMode ? "w-full h-3/5" : "sm:max-w-md w-full"
           }`}
         >
           <div className="flex items-center gap-3 flex-col md:flex-row h-full">
