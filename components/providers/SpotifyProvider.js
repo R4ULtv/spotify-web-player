@@ -373,6 +373,7 @@ export const SpotifyProvider = ({ children }) => {
       r: rotateRepeatState,
       f: toggleFullScreen,
       t: toggleTvMode,
+      p: () => setIsOpenDrawer((prev) => !prev),
     };
 
     const handleKeyDown = (event) => {

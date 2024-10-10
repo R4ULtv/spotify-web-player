@@ -122,14 +122,6 @@ export default function Navigation() {
               >
                 <MenuItem>
                   <Button className="group flex w-full items-center justify-between gap-3 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
-                    Toggle Shuffle
-                    <kbd className="text-xs text-zinc-200 bg-zinc-500/25 px-1 py-0.5 rounded">
-                      s
-                    </kbd>
-                  </Button>
-                </MenuItem>
-                <MenuItem>
-                  <Button className="group flex w-full items-center justify-between gap-3 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
                     Previous/Next
                     <kbd className="text-xs text-zinc-200 bg-zinc-500/25 px-1 py-0.5 rounded">
                       ←/→
@@ -152,6 +144,17 @@ export default function Navigation() {
                     </kbd>
                   </Button>
                 </MenuItem>
+
+                <div className="my-1 h-px bg-white/5" />
+
+                <MenuItem>
+                  <Button className="group flex w-full items-center justify-between gap-3 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
+                    Toggle Shuffle
+                    <kbd className="text-xs text-zinc-200 bg-zinc-500/25 px-1 py-0.5 rounded">
+                      s
+                    </kbd>
+                  </Button>
+                </MenuItem>
                 <MenuItem>
                   <Button className="group flex w-full items-center justify-between gap-3 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
                     Repeat Mode
@@ -160,7 +163,25 @@ export default function Navigation() {
                     </kbd>
                   </Button>
                 </MenuItem>
+                <MenuItem>
+                  <Button className="group flex w-full items-center justify-between gap-2 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
+                    Recently Played
+                    <kbd className="text-xs text-zinc-200 bg-zinc-500/25 px-1 py-0.5 rounded">
+                      p
+                    </kbd>
+                  </Button>
+                </MenuItem>
+                <MenuItem>
+                  <Button className="group flex w-full items-center justify-between gap-2 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
+                    Queue
+                    <kbd className="text-xs text-zinc-200 bg-zinc-500/25 px-1 py-0.5 rounded">
+                      q
+                    </kbd>
+                  </Button>
+                </MenuItem>
+
                 <div className="my-1 h-px bg-white/5" />
+
                 <MenuItem>
                   <Button className="group flex w-full items-center justify-between gap-2 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
                     Toggle Fullscreen
