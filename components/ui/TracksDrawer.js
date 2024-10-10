@@ -8,7 +8,7 @@ import { formatTime } from "@/components/utils/formatting";
 import { useState } from "react";
 
 export default function TracksDrawer() {
-  const snapPoints = [0.3, 0.6, 1];
+  const snapPoints = [0.6, 1];
   const [snap, setSnap] = useState(snapPoints[0]);
   const { isOpenDrawer, setIsOpenDrawer, recentlyTracks } = useSpotify();
 
@@ -19,7 +19,7 @@ export default function TracksDrawer() {
       snapPoints={snapPoints}
       activeSnapPoint={snap}
       setActiveSnapPoint={setSnap}
-      fadeFromIndex={1}
+      fadeFromIndex={0}
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-20" />
