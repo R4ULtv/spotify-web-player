@@ -22,12 +22,6 @@ import {
 import { InfiniteSlider } from "@/components/animations/infinite-slider";
 import { Slider } from "@/components/ui/slider";
 import { formatTime } from "@/components/utils/hooks";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 const RecentlyTracksIcon = () => (
   <svg
@@ -336,140 +330,104 @@ export default function SpotifyPlayer() {
   const trackControls = useMemo(() => {
     if (!currentTrack) return null;
     return (
-      <TooltipProvider>
-        <div className="w-full">
-          <div className="relative">
-            <Slider
-              value={[sliderValue]}
-              onValueChange={handleSliderChange}
-              onValueCommit={handleSliderCommit}
-              min={0}
-              max={100}
-              step={1}
-            />
-            <div
-              className={`w-full flex justify-between text-zinc-300 mt-1 ${
-                tvMode ? "text-base lg:text-xl" : "text-xs"
-              }`}
-            >
-              <span className="hover:text-zinc-200 transition ease-out duration-75 select-none">
-                {formatTime(progress)}
-              </span>
-              <span className="hover:text-zinc-200 transition ease-out duration-75 select-none">
-                {formatTime(currentTrack.durationMs)}
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  onClick={() => setIsOpenDrawer(true)}
-                  className={`p-1 outline-none relative group text-zinc-200 ${
-                    tvMode ? "scale-150" : ""
-                  }`}
-                >
-                  <RecentlyTracksIcon />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Recently Played</TooltipContent>
-            </Tooltip>
-            <div
-              className={`flex items-center justify-center gap-1 ${
-                tvMode ? "gap-4" : ""
-              }`}
-            >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={toggleShuffle}
-                    className={`mr-2 p-1 outline-none relative group text-zinc-400 ${
-                      tvMode ? "scale-150" : ""
-                    }`}
-                  >
-                    <ShuffleIcon shuffleState={currentTrack.shuffleState} />
-                    {currentTrack.shuffleState && (
-                      <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Shuffle</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={isPlaying ? skipToPrevious : null}
-                    className={`p-1 outline-none relative group text-zinc-300 ${
-                      tvMode ? "scale-150" : ""
-                    }`}
-                  >
-                    <BackwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Previous</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={togglePlay}
-                    className={`p-1 outline-none relative group text-zinc-200 ${
-                      tvMode ? "scale-150" : ""
-                    }`}
-                  >
-                    {isPlaying ? (
-                      <PauseIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
-                    ) : (
-                      <PlayIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{isPlaying ? "Pause" : "Play"}</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={isPlaying ? skipToNext : null}
-                    className={`p-1 outline-none relative group text-zinc-300 ${
-                      tvMode ? "scale-150" : ""
-                    }`}
-                  >
-                    <ForwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Next</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={rotateRepeatState}
-                    className={`ml-2 p-1 outline-none relative group text-zinc-400 ${
-                      tvMode ? "scale-150" : ""
-                    }`}
-                  >
-                    <RepeatIcon repeatState={currentTrack.repeatState} />
-                    {currentTrack.repeatState !== "off" && (
-                      <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Repeat</TooltipContent>
-              </Tooltip>
-            </div>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  className={`p-1 outline-none relative group text-zinc-200 ${
-                    tvMode ? "scale-150" : ""
-                  }`}
-                >
-                  <QueueIcon />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Queue</TooltipContent>
-            </Tooltip>
+      <div className="w-full">
+        <div className="relative">
+          <Slider
+            value={[sliderValue]}
+            onValueChange={handleSliderChange}
+            onValueCommit={handleSliderCommit}
+            min={0}
+            max={100}
+            step={1}
+            size={tvMode ? "6" : "4"}
+          />
+          <div
+            className={`w-full flex justify-between text-zinc-300 mt-1 ${
+              tvMode ? "text-base lg:text-xl" : "text-xs"
+            }`}
+          >
+            <span className="hover:text-zinc-200 transition ease-out duration-75 select-none">
+              {formatTime(progress)}
+            </span>
+            <span className="hover:text-zinc-200 transition ease-out duration-75 select-none">
+              {formatTime(currentTrack.durationMs)}
+            </span>
           </div>
         </div>
-      </TooltipProvider>
+        <div className="flex items-center justify-between">
+          <Button
+            onClick={() => setIsOpenDrawer(true)}
+            className={`p-1 outline-none relative group text-zinc-200 ${
+              tvMode ? "scale-150" : ""
+            }`}
+          >
+            <RecentlyTracksIcon />
+          </Button>
+          <div
+            className={`flex items-center justify-center gap-1 ${
+              tvMode ? "gap-4" : ""
+            }`}
+          >
+            <Button
+              onClick={toggleShuffle}
+              className={`mr-2 p-1 outline-none relative group text-zinc-400 ${
+                tvMode ? "scale-150" : ""
+              }`}
+            >
+              <ShuffleIcon shuffleState={currentTrack.shuffleState} />
+              {currentTrack.shuffleState && (
+                <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
+              )}
+            </Button>
+            <Button
+              onClick={isPlaying ? skipToPrevious : null}
+              className={`p-1 outline-none relative group text-zinc-300 ${
+                tvMode ? "scale-150" : ""
+              }`}
+            >
+              <BackwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
+            </Button>
+            <Button
+              onClick={togglePlay}
+              className={`p-1 outline-none relative group text-zinc-200 ${
+                tvMode ? "scale-150" : ""
+              }`}
+            >
+              {isPlaying ? (
+                <PauseIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
+              ) : (
+                <PlayIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
+              )}
+            </Button>
+            <Button
+              onClick={isPlaying ? skipToNext : null}
+              className={`p-1 outline-none relative group text-zinc-300 ${
+                tvMode ? "scale-150" : ""
+              }`}
+            >
+              <ForwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
+            </Button>
+            <Button
+              onClick={rotateRepeatState}
+              className={`ml-2 p-1 outline-none relative group text-zinc-400 ${
+                tvMode ? "scale-150" : ""
+              }`}
+            >
+              <RepeatIcon repeatState={currentTrack.repeatState} />
+              {currentTrack.repeatState !== "off" && (
+                <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
+              )}
+            </Button>
+          </div>
+          <Button
+            className={`p-1 outline-none relative group text-zinc-200 ${
+              tvMode ? "scale-150" : ""
+            }`}
+          >
+            <QueueIcon />
+          </Button>
+        </div>
+      </div>
     );
   }, [
     currentTrack,
@@ -487,14 +445,12 @@ export default function SpotifyPlayer() {
   return (
     <>
       <Transition show={!!currentTrack && !isPlayingAds} as={Fragment} appear>
-        <div
-          className={`absolute flex gap-3 flex-col items-center justify-center transition-all ease-out data-[closed]:scale-50 data-[closed]:opacity-0 ${
-            tvMode ? "inset-1/16" : "inset-2"
-          }`}
-        >
+        <div className="absolute flex gap-3 flex-col items-center justify-center transition-all ease-out data-[closed]:scale-50 data-[closed]:opacity-0 inset-4">
           <div
             className={`bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl ${
-              tvMode ? "w-full h-3/5" : "sm:max-w-md w-full"
+              tvMode
+                ? "w-full h-3/4 md:h-3/5 md:max-w-[90%]"
+                : "sm:max-w-md w-full"
             }`}
           >
             <div
