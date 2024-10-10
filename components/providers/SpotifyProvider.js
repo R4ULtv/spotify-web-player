@@ -19,9 +19,13 @@ const SPOTIFY_API_BASE = "https://api.spotify.com/v1";
 
 export const SpotifyProvider = ({ children }) => {
   const { data: session } = useSession();
+  const [isOpenDrawer, setIsOpenDrawer] = useState(false);
+
   // State to manage player information and UI settings
   const [playerState, setPlayerState] = useState({
     currentTrack: null,
+    currentQueue: [],
+    recentlyTracks: [],
     isPlayingAds: false,
     isPlaying: false,
     progress: 0,
@@ -136,6 +140,20 @@ export const SpotifyProvider = ({ children }) => {
       ),
     [fetchWithAuth, handleSpotifyAction]
   );
+
+  // Add a new function to fetch the queue
+  const fetchQueue = useCallback(async () => {
+    try {
+      const res = await fetchWithAuth("/me/player/queue");
+      const data = await res.json();
+      setPlayerState((prev) => ({
+        ...prev,
+        currentQueue: data.queue,
+      }));
+    } catch (error) {
+      console.error("Error fetching queue:", error);
+    }
+  }, [fetchWithAuth]);
 
   // Fetch the currently playing track information
   const fetchCurrentTrack = useCallback(async () => {
@@ -323,7 +341,7 @@ export const SpotifyProvider = ({ children }) => {
     [fetchWithAuth, playerState.currentTrack]
   );
 
-  // Add key shortcuts for actions
+  // Handle shortcuts for actions
   useEffect(() => {
     const keyActions = {
       " ": (e) => {
@@ -377,6 +395,41 @@ export const SpotifyProvider = ({ children }) => {
     playerState.progress,
   ]);
 
+  // Fetch recently played tracks
+  const fetchRecentlyPlayed = useCallback(async () => {
+    try {
+      const res = await fetchWithAuth("/me/player/recently-played");
+      const data = await res.json();
+      const recentTracks = data.items.map((item) => ({
+        name: item.track.name,
+        link: item.track.external_urls.spotify,
+        artists: item.track.artists.map((artist) => ({
+          name: artist.name,
+          link: artist.external_urls.spotify,
+        })),
+        album: {
+          name: item.track.album.name,
+          images: item.track.album.images,
+          link: item.track.album.external_urls.spotify,
+        },
+        durationMs: item.track.duration_ms,
+        explicit: item.track.explicit,
+        playedAt: item.played_at,
+      }));
+      setPlayerState((prev) => ({ ...prev, recentlyTracks: recentTracks }));
+    } catch (error) {
+      console.error("Error fetching recently played tracks:", error);
+    }
+  }, [fetchWithAuth]);
+
+  useEffect(() => {
+    if (session?.accessToken) {
+      fetchRecentlyPlayed();
+      const interval = setInterval(fetchRecentlyPlayed, 90000); // Fetch every minute
+      return () => clearInterval(interval);
+    }
+  }, [fetchRecentlyPlayed, session?.accessToken]);
+
   // Memoize the context value to prevent unnecessary re-renders
   const value = useMemo(
     () => ({
@@ -384,6 +437,8 @@ export const SpotifyProvider = ({ children }) => {
       progressPercentage:
         (playerState.progress / (playerState.currentTrack?.durationMs || 1)) *
         100,
+      isOpenDrawer,
+      setIsOpenDrawer,
       togglePlay,
       skipToPrevious,
       skipToNext,
@@ -395,6 +450,8 @@ export const SpotifyProvider = ({ children }) => {
     }),
     [
       playerState,
+      isOpenDrawer,
+      setIsOpenDrawer,
       togglePlay,
       skipToPrevious,
       skipToNext,

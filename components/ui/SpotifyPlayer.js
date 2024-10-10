@@ -13,13 +13,42 @@ import {
 } from "@heroicons/react/20/solid";
 import { InfiniteSlider } from "@/components/animations/infinite-slider";
 import { Slider } from "@/components/ui/slider";
+import { formatTime } from "@/components/utils/formatting";
 
-const formatTime = (ms) => {
-  const seconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-};
+const RecentlyTracksIcon = () => (
+  <svg
+    className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M11 18H3" />
+    <path d="m15 18 2 2 4-4" />
+    <path d="M16 12H3" />
+    <path d="M16 6H3" />
+  </svg>
+);
+
+const QueueIcon = () => (
+  <svg
+    className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M21 15V6" />
+    <path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+    <path d="M12 12H3" />
+    <path d="M16 6H3" />
+    <path d="M12 18H3" />
+  </svg>
+);
 
 const ShuffleIcon = ({ shuffleState }) => (
   <svg
@@ -220,6 +249,7 @@ export default function SpotifyPlayer() {
     tvMode,
     seekTrack,
     isPlayingAds,
+    setIsOpenDrawer,
   } = useSpotify();
 
   const [sliderValue, setSliderValue] = useState(progressPercentage);
@@ -247,20 +277,20 @@ export default function SpotifyPlayer() {
     return (
       <Button
         onClick={toggleFullScreen}
-        className={`relative shrink-0 w-full md:h-full md:w-auto group`}
+        className={`relative shrink-0 w-full md:h-full md:w-auto overflow-hidden outline-none rounded-xl group`}
       >
         <img
           alt="Album Cover"
           src={currentTrack.album.images[0].url}
           srcSet={`${currentTrack.album.images[1].url} 1x, ${currentTrack.album.images[0].url} 2x`}
           loading="lazy"
-          className={`rounded-xl ${
+          className={`group-hover:scale-110 transition ease-out duration-75 ${
             tvMode
               ? "w-full h-full aspect-square"
               : "w-full md:w-auto md:size-24"
           }`}
         />
-        <div className="invisible group-data-[hover]:visible transition ease-out flex items-center justify-center absolute inset-0 bg-transparent group-data-[hover]:bg-zinc-900/50 text-zinc-200 rounded-xl">
+        <div className="invisible group-data-[hover]:visible transition ease-out flex items-center justify-center absolute inset-0 bg-transparent group-data-[hover]:bg-zinc-900/50 text-zinc-200">
           {fullScreen ? (
             <ArrowsPointingInIcon className="size-5" />
           ) : (
@@ -295,24 +325,30 @@ export default function SpotifyPlayer() {
         </div>
         <div className="flex items-center justify-between">
           <Button
-            onClick={toggleShuffle}
-            className="p-1 outline-none relative group text-zinc-400"
+            onClick={() => setIsOpenDrawer(true)}
+            className="p-1 outline-none relative group text-zinc-200"
           >
-            <ShuffleIcon shuffleState={currentTrack.shuffleState} />
-            {currentTrack.shuffleState && (
-              <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
-            )}
+            <RecentlyTracksIcon />
           </Button>
           <div className="flex items-center justify-center gap-1">
+            <Button
+              onClick={toggleShuffle}
+              className="mr-2 p-1 outline-none relative group text-zinc-400"
+            >
+              <ShuffleIcon shuffleState={currentTrack.shuffleState} />
+              {currentTrack.shuffleState && (
+                <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
+              )}
+            </Button>
             <Button
               onClick={isPlaying ? skipToPrevious : null}
               className="p-1 outline-none relative group text-zinc-300"
             >
-              <BackwardIcon className="size-5 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
+              <BackwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
             </Button>
             <Button
               onClick={togglePlay}
-              className="p-1 rounded-xl outline-none relative group text-zinc-200"
+              className="p-1 outline-none relative group text-zinc-200"
             >
               {isPlaying ? (
                 <PauseIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
@@ -324,17 +360,20 @@ export default function SpotifyPlayer() {
               onClick={isPlaying ? skipToNext : null}
               className="p-1 outline-none relative group text-zinc-300"
             >
-              <ForwardIcon className="size-5 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
+              <ForwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
+            </Button>
+            <Button
+              onClick={rotateRepeatState}
+              className="ml-2 p-1 outline-none relative group text-zinc-400"
+            >
+              <RepeatIcon repeatState={currentTrack.repeatState} />
+              {currentTrack.repeatState !== "off" && (
+                <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
+              )}
             </Button>
           </div>
-          <Button
-            onClick={rotateRepeatState}
-            className="p-1 outline-none relative group text-zinc-400"
-          >
-            <RepeatIcon repeatState={currentTrack.repeatState} />
-            {currentTrack.repeatState !== "off" && (
-              <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
-            )}
+          <Button className="p-1 outline-none relative group text-zinc-200">
+            <QueueIcon />
           </Button>
         </div>
       </div>
@@ -376,7 +415,7 @@ export default function SpotifyPlayer() {
           </div>
         </div>
         {!tvMode && (
-          <div className="sm:max-w-sm w-full bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl">
+          <div className="sm:max-w-md w-full bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl">
             {trackControls}
           </div>
         )}
