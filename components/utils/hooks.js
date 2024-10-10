@@ -5,22 +5,15 @@ export function useMediaQuery(query) {
   const [matches, setMatches] = React.useState(false);
 
   React.useEffect(() => {
-    const matchMedia = window.matchMedia(query);
+    const mediaQuery = window.matchMedia(query);
+    const handleChange = (event) => setMatches(event.matches);
 
-    const updateMatches = (e) => {
-      setMatches(e.matches);
-    };
-
-    // Set the initial value
-    setMatches(matchMedia.matches);
-
-    // Add the listener
-    matchMedia.addEventListener("change", updateMatches);
+    // Set initial value and add listener
+    setMatches(mediaQuery.matches);
+    mediaQuery.addEventListener("change", handleChange);
 
     // Clean up
-    return () => {
-      matchMedia.removeEventListener("change", updateMatches);
-    };
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, [query]);
 
   return matches;
