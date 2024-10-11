@@ -10,7 +10,6 @@ import {
   Transition,
 } from "@headlessui/react";
 import { Fragment, useMemo, useRef, useEffect, useState } from "react";
-import { useSpotify } from "@/components/providers/SpotifyProvider";
 import {
   ArrowsPointingInIcon,
   ArrowsPointingOutIcon,
@@ -19,6 +18,10 @@ import {
   PauseIcon,
   PlayIcon,
 } from "@heroicons/react/20/solid";
+
+import { useMedia } from "@/components/providers/MediaProvider";
+import { useSpotify } from "@/components/providers/SpotifyProvider";
+
 import { InfiniteSlider } from "@/components/animations/infinite-slider";
 import { Slider } from "@/components/ui/slider";
 import { formatTime } from "@/components/utils/hooks";
@@ -258,26 +261,12 @@ export default function SpotifyPlayer() {
     tvMode,
     seekTrack,
     isPlayingAds,
-    setIsOpenDrawer,
   } = useSpotify();
+
+  const { setIsOpenTrackDrawer, isPortrait } = useMedia();
 
   const [sliderValue, setSliderValue] = useState(progressPercentage);
   const [isDragging, setIsDragging] = useState(false);
-
-  const [isPortrait, setIsPortrait] = useState(false);
-  const [showRotateDialog, setShowRotateDialog] = useState(false);
-
-  useEffect(() => {
-    const checkOrientation = () => {
-      const isPortrait = window.innerHeight > window.innerWidth;
-      setIsPortrait(isPortrait);
-      setShowRotateDialog(tvMode && isPortrait);
-    };
-
-    checkOrientation();
-    window.addEventListener("resize", checkOrientation);
-    return () => window.removeEventListener("resize", checkOrientation);
-  }, [tvMode]);
 
   useEffect(() => {
     if (!isDragging) {
@@ -356,7 +345,7 @@ export default function SpotifyPlayer() {
         </div>
         <div className="flex items-center justify-between">
           <Button
-            onClick={() => setIsOpenDrawer(true)}
+            onClick={() => setIsOpenTrackDrawer(true)}
             className={`p-1 outline-none relative group text-zinc-200 ${
               tvMode ? "scale-150" : ""
             }`}
@@ -443,96 +432,41 @@ export default function SpotifyPlayer() {
   if (!currentTrack) return null;
 
   return (
-    <>
-      <Transition show={!!currentTrack && !isPlayingAds} as={Fragment} appear>
-        <div className="absolute flex gap-3 flex-col items-center justify-center transition-all ease-out data-[closed]:scale-50 data-[closed]:opacity-0 inset-4">
+    <Transition
+      show={!!currentTrack && !isPlayingAds && (!tvMode || !isPortrait)}
+      as={Fragment}
+      appear
+    >
+      <div className="absolute flex gap-3 flex-col items-center justify-center transition-all ease-out data-[closed]:scale-50 data-[closed]:opacity-0 inset-4">
+        <div
+          className={`bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl ${
+            tvMode
+              ? "w-full h-3/4 md:h-3/5 md:max-w-[90%]"
+              : "sm:max-w-md w-full"
+          }`}
+        >
           <div
-            className={`bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl ${
-              tvMode
-                ? "w-full h-3/4 md:h-3/5 md:max-w-[90%]"
-                : "sm:max-w-md w-full"
+            className={`flex items-center gap-3 h-full ${
+              !tvMode ? "flex-col md:flex-row" : ""
             }`}
           >
+            {albumCover}
             <div
-              className={`flex items-center gap-3 h-full ${
-                !tvMode ? "flex-col md:flex-row" : ""
+              className={`truncate w-full ${
+                tvMode ? "h-full flex flex-col justify-around gap-2" : ""
               }`}
             >
-              {albumCover}
-              <div
-                className={`truncate w-full ${
-                  tvMode ? "h-full flex flex-col justify-around gap-2" : ""
-                }`}
-              >
-                <TrackInfo currentTrack={currentTrack} tvMode={tvMode} />
-                {tvMode && trackControls}
-              </div>
+              <TrackInfo currentTrack={currentTrack} tvMode={tvMode} />
+              {tvMode && trackControls}
             </div>
           </div>
-          {!tvMode && (
-            <div className="sm:max-w-sm w-full bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl">
-              {trackControls}
-            </div>
-          )}
         </div>
-      </Transition>
-
-      <Dialog
-        open={showRotateDialog}
-        onClose={() => {
-          if (!isPortrait) {
-            setShowRotateDialog(false);
-          }
-        }}
-      >
-        <DialogBackdrop
-          transition
-          className="fixed inset-0 bg-black/40 z-50 data-[closed]:opacity-0 ease-out duration-75"
-        />
-
-        <div className="fixed inset-0 flex w-screen items-center justify-center p-4 z-50">
-          <DialogPanel
-            transition
-            className="w-full max-w-md overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl data-[closed]:opacity-0 data-[closed]:scale-50 ease-out duration-75"
-          >
-            <DialogTitle className="text-lg font-semibold leading-6 text-center text-gray-900">
-              Please Rotate Your Device
-            </DialogTitle>
-            <div className="mt-2">
-              <div className="flex items-center justify-center p-2">
-                <svg
-                  className="size-12 text-gray-500 animate-[spin_4s_linear_infinite]"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-                  <path d="M21 3v5h-5" />
-                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-                  <path d="M8 16H3v5" />
-                </svg>
-              </div>
-              <Description className="text-center text-sm text-gray-500 text-balance">
-                For the best viewing experience in TV mode, please rotate your
-                device to landscape orientation.
-              </Description>
-
-              <Button
-                onClick={() => {
-                  toggleTvMode();
-                  setShowRotateDialog(false);
-                }}
-                className="mt-4 p-2 w-full bg-zinc-200 text-zinc-900 text-sm font-semibold rounded-lg"
-              >
-                Disable TV Mode
-              </Button>
-            </div>
-          </DialogPanel>
-        </div>
-      </Dialog>
-    </>
+        {!tvMode && (
+          <div className="sm:max-w-sm w-full bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl">
+            {trackControls}
+          </div>
+        )}
+      </div>
+    </Transition>
   );
 }

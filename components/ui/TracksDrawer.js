@@ -12,13 +12,15 @@ import {
 } from "@headlessui/react";
 
 import { useSpotify } from "@/components/providers/SpotifyProvider";
+import { useMedia } from "@/components/providers/MediaProvider";
 import { formatTime, useMediaQuery } from "@/components/utils/hooks";
 
 export default function TracksDrawer() {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const snapPoints = useMemo(() => [0.6, 1], []);
   const [snap, setSnap] = useState(snapPoints[0]);
-  const { isOpenDrawer, setIsOpenDrawer, recentlyTracks } = useSpotify();
+  const { recentlyTracks } = useSpotify();
+  const { isOpenTrackDrawer, setIsOpenTrackDrawer } = useMedia();
 
   const TrackList = useMemo(
     () => (
@@ -34,8 +36,8 @@ export default function TracksDrawer() {
   if (isDesktop) {
     return (
       <DesktopDialog
-        isOpen={isOpenDrawer}
-        onClose={() => setIsOpenDrawer(false)}
+        isOpen={isOpenTrackDrawer}
+        onClose={() => setIsOpenTrackDrawer(false)}
         title="Recently Played Tracks"
         description={getDescription(recentlyTracks)}
         content={TrackList}
@@ -45,8 +47,8 @@ export default function TracksDrawer() {
 
   return (
     <MobileDrawer
-      isOpen={isOpenDrawer}
-      onClose={() => setIsOpenDrawer(false)}
+      isOpen={isOpenTrackDrawer}
+      onClose={() => setIsOpenTrackDrawer(false)}
       snapPoints={snapPoints}
       snap={snap}
       setSnap={setSnap}
@@ -151,7 +153,7 @@ function MobileDrawer({
               <div
                 aria-hidden
                 className={`mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-400 mb-4 ${
-                  snap === snapPoints[0] && "animate-bounce"
+                  snap === snapPoints[0] ? "animate-bounce" : ""
                 }`}
               />
               <Drawer.Title className="font-bold text-gray-200">
