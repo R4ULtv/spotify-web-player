@@ -1,6 +1,5 @@
 "use client";
 
-import { Drawer } from "vaul";
 import {
   Dialog,
   DialogBackdrop,
