@@ -297,7 +297,11 @@ export default function SpotifyPlayer() {
         <img
           alt="Album Cover"
           src={currentTrack.album.images[0].url}
-          srcSet={`${currentTrack.album.images[1].url} 1x, ${currentTrack.album.images[0].url} 2x`}
+          srcSet={
+            !tvMode
+              ? `${currentTrack.album.images[1].url} 1x, ${currentTrack.album.images[0].url} 2x`
+              : undefined
+          }
           loading="lazy"
           className={`group-hover:scale-110 transition ease-out duration-75 ${
             tvMode
