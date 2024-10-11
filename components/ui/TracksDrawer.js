@@ -1,7 +1,6 @@
 "use client";
 
 import { Drawer } from "vaul";
-import moment from "moment";
 import { useState, useMemo } from "react";
 import {
   Dialog,
@@ -13,7 +12,7 @@ import {
 
 import { useSpotify } from "@/components/providers/SpotifyProvider";
 import { useMedia } from "@/components/providers/MediaProvider";
-import { formatTime, useMediaQuery } from "@/components/utils/hooks";
+import { formatRelativeTime, formatTime, useMediaQuery } from "@/components/utils/hooks";
 
 export default function TracksDrawer() {
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -82,7 +81,7 @@ function TrackItem({ track }) {
           {formatTime(track.durationMs)}
         </span>
         <span className="text-zinc-400 text-xs">
-          {moment(track.playedAt).fromNow()}
+          {formatRelativeTime(track.playedAt)}
         </span>
       </div>
     </div>
