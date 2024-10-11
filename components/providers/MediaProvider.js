@@ -29,8 +29,14 @@ export const MediaProvider = ({ children }) => {
   }, [checkOrientation]);
 
   useEffect(() => {
-    const handleKeyPress = (event) => {
-      if (event.key === "p") {
+    const handleKeyPress = (e) => {
+      if (
+        e.key === "p" &&
+        !e.ctrlKey &&
+        !e.altKey &&
+        !e.metaKey &&
+        !e.shiftKey
+      ) {
         setIsOpenTrackDrawer((prev) => !prev);
       }
     };

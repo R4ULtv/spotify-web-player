@@ -351,7 +351,7 @@ export const SpotifyProvider = ({ children }) => {
         if (e.shiftKey && playerState.currentTrack) {
           e.preventDefault();
           seekTrack(Math.max(0, playerState.progress - 10000));
-        } else {
+        } else if (!e.ctrlKey && !e.altKey && !e.metaKey) {
           skipToPrevious();
         }
       },
@@ -364,14 +364,30 @@ export const SpotifyProvider = ({ children }) => {
               playerState.progress + 10000
             )
           );
-        } else {
+        } else if (!e.ctrlKey && !e.altKey && !e.metaKey) {
           skipToNext();
         }
       },
-      s: toggleShuffle,
-      r: rotateRepeatState,
-      f: toggleFullScreen,
-      t: toggleTvMode,
+      s: (e) => {
+        if (!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+          toggleShuffle();
+        }
+      },
+      r: (e) => {
+        if (!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+          rotateRepeatState();
+        }
+      },
+      f: (e) => {
+        if (!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+          toggleFullScreen();
+        }
+      },
+      t: (e) => {
+        if (!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+          toggleTvMode();
+        }
+      },
     };
 
     const handleKeyDown = (event) => {
