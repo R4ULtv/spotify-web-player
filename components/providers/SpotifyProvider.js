@@ -19,7 +19,6 @@ const SPOTIFY_API_BASE = "https://api.spotify.com/v1";
 
 export const SpotifyProvider = ({ children }) => {
   const { data: session } = useSession();
-  const [isOpenDrawer, setIsOpenDrawer] = useState(false);
 
   // State to manage player information and UI settings
   const [playerState, setPlayerState] = useState({
@@ -373,7 +372,6 @@ export const SpotifyProvider = ({ children }) => {
       r: rotateRepeatState,
       f: toggleFullScreen,
       t: toggleTvMode,
-      p: () => setIsOpenDrawer((prev) => !prev),
     };
 
     const handleKeyDown = (event) => {
@@ -438,8 +436,6 @@ export const SpotifyProvider = ({ children }) => {
       progressPercentage:
         (playerState.progress / (playerState.currentTrack?.durationMs || 1)) *
         100,
-      isOpenDrawer,
-      setIsOpenDrawer,
       togglePlay,
       skipToPrevious,
       skipToNext,
@@ -451,8 +447,6 @@ export const SpotifyProvider = ({ children }) => {
     }),
     [
       playerState,
-      isOpenDrawer,
-      setIsOpenDrawer,
       togglePlay,
       skipToPrevious,
       skipToNext,
