@@ -29,7 +29,6 @@ export const SpotifyProvider = ({ children }) => {
     isPlaying: false,
     progress: 0,
     currentPalette: null,
-    fullScreen: false,
     tvMode: false,
   });
 
@@ -287,40 +286,6 @@ export const SpotifyProvider = ({ children }) => {
     });
   }, []);
 
-  // Toggle fullscreen mode on/off
-  const toggleFullScreen = useCallback(() => {
-    let html = document.documentElement;
-
-    function openFullscreen() {
-      if (html.requestFullscreen) {
-        html.requestFullscreen();
-      } else if (html.webkitRequestFullscreen) {
-        html.webkitRequestFullscreen();
-      } else if (html.msRequestFullscreen) {
-        html.msRequestFullscreen();
-      }
-    }
-
-    function closeFullscreen() {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      } else if (document.msExitFullscreen) {
-        document.msExitFullscreen();
-      }
-    }
-    if (playerState?.fullScreen) {
-      closeFullscreen();
-    } else {
-      openFullscreen();
-    }
-
-    setPlayerState((prev) => {
-      return { ...prev, fullScreen: !prev.fullScreen };
-    });
-  }, [playerState?.fullScreen]);
-
   // Seek to a specific position within the current track
   const seekTrack = useCallback(
     async (positionMs) => {
@@ -378,11 +343,6 @@ export const SpotifyProvider = ({ children }) => {
           rotateRepeatState();
         }
       },
-      f: (e) => {
-        if (!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
-          toggleFullScreen();
-        }
-      },
       t: (e) => {
         if (!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
           toggleTvMode();
@@ -403,7 +363,6 @@ export const SpotifyProvider = ({ children }) => {
     skipToNext,
     toggleShuffle,
     rotateRepeatState,
-    toggleFullScreen,
     toggleTvMode,
     seekTrack,
     playerState.currentTrack,
@@ -457,7 +416,6 @@ export const SpotifyProvider = ({ children }) => {
       skipToNext,
       toggleShuffle,
       rotateRepeatState,
-      toggleFullScreen,
       toggleTvMode,
       seekTrack,
     }),
@@ -468,7 +426,6 @@ export const SpotifyProvider = ({ children }) => {
       skipToNext,
       toggleShuffle,
       rotateRepeatState,
-      toggleFullScreen,
       toggleTvMode,
       seekTrack,
     ]
