@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Description,
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-  DialogTitle,
-  Transition,
-} from "@headlessui/react";
+import { Button, Transition } from "@headlessui/react";
 import { Fragment, useMemo, useRef, useEffect, useState } from "react";
 import {
   ArrowsPointingInIcon,
