@@ -45,6 +45,7 @@ export default function RandomCircle() {
   }, [otherColors, isMobile]);
 
   useEffect(() => {
+    if (!currentPalette?.length) return;
     setCircles(generateCircles());
   }, [generateCircles]);
 
