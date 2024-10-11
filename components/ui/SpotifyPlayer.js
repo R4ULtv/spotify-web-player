@@ -292,7 +292,6 @@ export default function SpotifyPlayer() {
               ? `${currentTrack.album.images[2].url} 1x, ${currentTrack.album.images[1].url} 2x, ${currentTrack.album.images[0].url} 3x`
               : undefined
           }
-          loading="lazy"
           className={`group-hover:scale-110 transition ease-out duration-75 ${
             tvMode
               ? "w-full h-full aspect-square"
