@@ -2,6 +2,11 @@
 
 import { useCallback, useSyncExternalStore } from "react";
 
+/**
+ * Custom hook to check if a media query matches the current viewport
+ * @param {string} query - The media query to check
+ * @returns {boolean} - True if the media query matches, false otherwise
+ */
 export function useMediaQuery(query) {
   const subscribe = useCallback(
     (callback) => {
@@ -26,6 +31,11 @@ export function useMediaQuery(query) {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
+/**
+ * Formats milliseconds into a time string (MM:SS)
+ * @param {number} ms - Time in milliseconds
+ * @returns {string} - Formatted time string
+ */
 export const formatTime = (ms) => {
   const seconds = Math.floor(ms / 1000);
   const minutes = Math.floor(seconds / 60);
@@ -33,6 +43,11 @@ export const formatTime = (ms) => {
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 };
 
+/**
+ * Formats a date into a relative time string (e.g., "2 hours ago")
+ * @param {Date|string} inputDate - The date to format
+ * @returns {string} - Formatted relative time string
+ */
 export const formatRelativeTime = (inputDate) => {
   const date = inputDate instanceof Date ? inputDate : new Date(inputDate);
   
