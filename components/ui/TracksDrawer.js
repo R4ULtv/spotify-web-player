@@ -143,7 +143,7 @@ function MobileDrawer({
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-20" />
-        <Drawer.Content className="bg-zinc-900/50 backdrop-blur-xl flex flex-col rounded-t-2xl mt-24 h-[98%] fixed bottom-0 inset-x-0 mx-auto w-full md:max-w-2xl outline-none z-20">
+        <Drawer.Content className="bg-zinc-900/50 backdrop-blur-xl flex flex-col rounded-t-2xl mt-24 h-[95%] fixed bottom-0 inset-x-0 mx-auto w-full md:max-w-2xl outline-none z-20">
           <div
             className={`p-6 flex-1 ${
               snap === 1 ? "overflow-y-auto" : "overflow-y-hidden"
