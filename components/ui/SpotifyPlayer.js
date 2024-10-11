@@ -299,14 +299,14 @@ export default function SpotifyPlayer() {
           src={currentTrack.album.images[0].url}
           srcSet={
             !tvMode
-              ? `${currentTrack.album.images[1].url} 1x, ${currentTrack.album.images[0].url} 2x`
+              ? `${currentTrack.album.images[2].url} 1x, ${currentTrack.album.images[1].url} 2x, ${currentTrack.album.images[0].url} 3x`
               : undefined
           }
           loading="lazy"
           className={`group-hover:scale-110 transition ease-out duration-75 ${
             tvMode
               ? "w-full h-full aspect-square"
-              : "w-full md:w-auto md:size-24"
+              : "w-full md:w-auto md:size-20"
           }`}
         />
         <div className="invisible group-data-[hover]:visible group-data-[focus]:visible transition ease-out flex items-center justify-center absolute inset-0 bg-transparent group-data-[hover]:bg-zinc-900/50 group-data-[focus]:bg-zinc-900/50 text-zinc-200">
