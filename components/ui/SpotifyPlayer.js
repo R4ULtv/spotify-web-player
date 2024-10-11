@@ -247,15 +247,13 @@ export default function SpotifyPlayer() {
     togglePlay,
     toggleShuffle,
     rotateRepeatState,
-    toggleFullScreen,
-    toggleTvMode,
-    fullScreen,
     tvMode,
     seekTrack,
     isPlayingAds,
   } = useSpotify();
 
-  const { setIsOpenTrackDrawer, isPortrait } = useMedia();
+  const { setIsOpenTrackDrawer, isPortrait, toggleFullScreen, fullScreen } =
+    useMedia();
 
   const [sliderValue, setSliderValue] = useState(progressPercentage);
   const [isDragging, setIsDragging] = useState(false);
