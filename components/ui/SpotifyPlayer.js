@@ -289,10 +289,10 @@ export default function SpotifyPlayer() {
           src={currentTrack.album.images[0].url}
           srcSet={
             !tvMode
-              ? `${currentTrack.album.images[2].url} 1x, ${currentTrack.album.images[1].url} 2x, ${currentTrack.album.images[0].url} 3x`
+              ? `${currentTrack.album.images[1].url} 1x, ${currentTrack.album.images[0].url} 2x`
               : undefined
           }
-          className={`group-hover:scale-110 transition ease-out duration-75 ${
+          className={`group-data-[focus]:scale-110 group-data-[hover]:scale-110 transition ease-out duration-75 ${
             tvMode
               ? "w-full h-full aspect-square"
               : "w-full md:w-auto md:size-20"
