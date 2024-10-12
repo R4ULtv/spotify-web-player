@@ -372,9 +372,10 @@ export const SpotifyProvider = ({ children }) => {
   // Fetch recently played tracks
   const fetchRecentlyPlayed = useCallback(async () => {
     try {
-      const res = await fetchWithAuth("/me/player/recently-played");
+      const res = await fetchWithAuth("/me/player/recently-played?limit=50");
       const data = await res.json();
       const recentTracks = data.items.map((item) => ({
+        uri: item.track.uri,
         name: item.track.name,
         link: item.track.external_urls.spotify,
         artists: item.track.artists.map((artist) => ({
