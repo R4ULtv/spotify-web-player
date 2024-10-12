@@ -1,7 +1,7 @@
 "use client";
 
 import { Drawer } from "vaul";
-import { useState, useMemo } from "react";
+import { useState, useMemo, Fragment } from "react";
 import {
   Dialog,
   DialogBackdrop,
@@ -12,7 +12,11 @@ import {
 
 import { useSpotify } from "@/components/providers/SpotifyProvider";
 import { useMedia } from "@/components/providers/MediaProvider";
-import { formatRelativeTime, formatTime, useMediaQuery } from "@/components/utils/hooks";
+import {
+  formatRelativeTime,
+  formatTime,
+  useMediaQuery,
+} from "@/components/utils/hooks";
 
 export default function TracksDrawer() {
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -25,11 +29,11 @@ export default function TracksDrawer() {
     () => (
       <div className="flex flex-col gap-2">
         {recentlyTracks.map((track, index) => (
-          <TrackItem key={index} track={track} />
+          <TrackItem key={index} track={track} isDesktop={isDesktop} />
         ))}
       </div>
     ),
-    [recentlyTracks]
+    [recentlyTracks, isDesktop]
   );
 
   if (isDesktop) {
@@ -58,22 +62,52 @@ export default function TracksDrawer() {
   );
 }
 
-function TrackItem({ track }) {
+function TrackItem({ track, isDesktop }) {
   return (
     <div className="flex items-center justify-between gap-2 w-full">
       <div className="flex items-center gap-2 min-w-0 flex-1">
         <img
           src={track.album.images[0].url}
           alt={track.name}
+          loading="lazy"
           className="size-10 flex-shrink-0 rounded-md"
         />
         <div className="flex flex-col min-w-0 flex-1">
-          <span className="text-zinc-200 font-semibold text-sm truncate">
-            {track.name}
-          </span>
-          <span className="text-zinc-400 text-xs truncate">
-            {track.artists.map((artist) => artist.name).join(", ")}
-          </span>
+          {isDesktop ? (
+            <a
+              href={track.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-200 font-semibold text-sm truncate hover:underline"
+            >
+              {track.name}
+            </a>
+          ) : (
+            <span className="text-zinc-200 font-semibold text-sm truncate">
+              {track.name}
+            </span>
+          )}
+          {isDesktop ? (
+            <div className="flex gap-1">
+              {track.artists.map((artist, index) => (
+                <Fragment key={artist.name}>
+                  <a
+                    href={artist.link}
+                    className="text-zinc-400 text-xs truncate hover:underline"
+                  >
+                    {artist.name}
+                  </a>
+                  {index < track.artists.length - 1 && (
+                    <span className="text-zinc-400 text-xs">·</span>
+                  )}
+                </Fragment>
+              ))}
+            </div>
+          ) : (
+            <span className="text-zinc-400 text-xs truncate">
+              {track.artists.map((artist) => artist.name).join(", ")}
+            </span>
+          )}
         </div>
       </div>
       <div className="flex flex-col items-end justify-center shrink-0">
