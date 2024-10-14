@@ -67,7 +67,7 @@ function TrackItem({ track, isDesktop }) {
     <div className="flex items-center justify-between gap-2 w-full">
       <div className="flex items-center gap-2 min-w-0 flex-1">
         <img
-          src={track.album.images[0].url}
+          src={track.album.images[2].url}
           alt={track.name}
           loading="lazy"
           className="size-10 flex-shrink-0 rounded-md"
