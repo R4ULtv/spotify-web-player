@@ -8,7 +8,7 @@ export default function RandomCircle() {
   const { currentPalette } = useSpotify();
   const [circles, setCircles] = useState([]);
   const isMobile = useMediaQuery("(max-width: 768px)");
-  
+
   const { darkestColor, otherColors } = useMemo(() => {
     if (!currentPalette?.length) {
       return { darkestColor: "#18181b", otherColors: ["#18181b"] };
@@ -24,10 +24,10 @@ export default function RandomCircle() {
   }, [currentPalette]);
 
   const generateCircles = useCallback(() => {
-    const baseNumCircles = isMobile ? 10 : 15;
+    const baseNumCircles = isMobile ? 5 : 10;
     const numCircles = Math.max(
       baseNumCircles,
-      Math.min(otherColors.length * (isMobile ? 2 : 3), isMobile ? 20 : 30)
+      Math.min(otherColors.length * (isMobile ? 2 : 2), isMobile ? 10 : 20)
     );
     const gridSize = Math.ceil(Math.sqrt(numCircles));
     const cellSize = 100 / gridSize;
@@ -38,7 +38,9 @@ export default function RandomCircle() {
       y: `${
         Math.floor(i / gridSize) * cellSize + Math.random() * cellSize * 0.8
       }%`,
-      size: `${Math.random() * 350 + 100}px`,
+      size: isMobile
+        ? `${Math.random() * 60 + 30}%`
+        : `${Math.random() * 20 + 10}%`,
       color: otherColors[Math.floor(Math.random() * otherColors.length)],
       animationDelay: `${Math.random() * 5}s`,
     }));
@@ -58,14 +60,13 @@ export default function RandomCircle() {
       {circles.map(({ id, x, y, size, color, animationDelay }) => (
         <div
           key={id}
-          className="absolute rounded-full opacity-50 blur-2xl animate-float transition-all ease-out duration-300"
+          className="absolute rounded-full aspect-square h-auto opacity-50 blur-2xl animate-float transition-all ease-out duration-300"
           style={{
             backgroundColor: color,
             animationDelay,
             left: x,
             top: y,
             width: size,
-            height: size,
           }}
         />
       ))}
