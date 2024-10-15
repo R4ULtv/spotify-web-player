@@ -17,81 +17,12 @@ import { useSpotify } from "@/components/providers/SpotifyProvider";
 import { InfiniteSlider } from "@/components/animations/infinite-slider";
 import { Slider } from "@/components/ui/slider";
 import { formatTime } from "@/components/utils/hooks";
-
-const RecentlyTracksIcon = () => (
-  <svg
-    className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M11 18H3" />
-    <path d="m15 18 2 2 4-4" />
-    <path d="M16 12H3" />
-    <path d="M16 6H3" />
-  </svg>
-);
-
-const QueueIcon = () => (
-  <svg
-    className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M21 15V6" />
-    <path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
-    <path d="M12 12H3" />
-    <path d="M16 6H3" />
-    <path d="M12 18H3" />
-  </svg>
-);
-
-const ShuffleIcon = ({ shuffleState }) => (
-  <svg
-    className={`size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75 ${
-      shuffleState && "stroke-zinc-200"
-    }`}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22" />
-    <path d="m18 2 4 4-4 4" />
-    <path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2" />
-    <path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8" />
-    <path d="m18 14 4 4-4 4" />
-  </svg>
-);
-
-const RepeatIcon = ({ repeatState }) => (
-  <svg
-    className={`size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75 ${
-      repeatState !== "off" && "stroke-zinc-200"
-    }`}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="m17 2 4 4-4 4" />
-    <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
-    <path d="m7 22-4-4 4-4" />
-    <path d="M21 13v1a4 4 0 0 1-4 4H3" />
-    {repeatState === "track" && <path d="M11 10h1v4" />}
-  </svg>
-);
+import {
+  QueueIcon,
+  RecentlyTracksIcon,
+  ShuffleIcon,
+  RepeatIcon,
+} from "@/components/utils/icons";
 
 const TrackInfo = ({ currentTrack, tvMode }) => {
   const containerRef = useRef(null);
@@ -343,7 +274,7 @@ export default function SpotifyPlayer() {
               tvMode ? "scale-150" : ""
             }`}
           >
-            <RecentlyTracksIcon />
+            <RecentlyTracksIcon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
           </Button>
           <div
             className={`flex items-center justify-center gap-1 ${
@@ -356,7 +287,11 @@ export default function SpotifyPlayer() {
                 tvMode ? "scale-150" : ""
               }`}
             >
-              <ShuffleIcon shuffleState={currentTrack.shuffleState} />
+              <ShuffleIcon
+                className={`size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75 ${
+                  currentTrack.shuffleState && "stroke-zinc-200"
+                }`}
+              />
               {currentTrack.shuffleState && (
                 <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
               )}
@@ -395,7 +330,12 @@ export default function SpotifyPlayer() {
                 tvMode ? "scale-150" : ""
               }`}
             >
-              <RepeatIcon repeatState={currentTrack.repeatState} />
+              <RepeatIcon
+                className={`size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75 ${
+                  currentTrack.repeatState !== "off" && "stroke-zinc-200"
+                }`}
+                repeatState={currentTrack.repeatState}
+              />
               {currentTrack.repeatState !== "off" && (
                 <div className="size-1 absolute bottom-0 translate-x-[5px] translate-y-[3px] bg-zinc-200 rounded-full" />
               )}
@@ -406,7 +346,7 @@ export default function SpotifyPlayer() {
               tvMode ? "scale-150" : ""
             }`}
           >
-            <QueueIcon />
+            <QueueIcon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
           </Button>
         </div>
       </div>

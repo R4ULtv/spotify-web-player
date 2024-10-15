@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 
 import { useMedia } from "@/components/providers/MediaProvider";
 import { useSpotify } from "@/components/providers/SpotifyProvider";
+import { RotateDeviceIcon } from "@/components/utils/icons";
 
 export default function RotateDeviceDrawer() {
   const { isPortrait } = useMedia();
@@ -49,20 +50,7 @@ export default function RotateDeviceDrawer() {
               Please Rotate Your Device
             </DialogTitle>
             <div className="flex items-center justify-center p-2">
-              <svg
-                className="size-12 text-gray-400 animate-[spin_4s_linear_infinite]"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-                <path d="M21 3v5h-5" />
-                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-                <path d="M8 16H3v5" />
-              </svg>
+              <RotateDeviceIcon className="size-12 text-gray-400 animate-[spin_4s_linear_infinite]" />
             </div>
             <Description className="text-zinc-300 text-sm mb-2 text-center text-balance">
               For the best viewing experience in TV mode, please rotate your
