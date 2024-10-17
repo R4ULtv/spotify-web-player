@@ -11,6 +11,11 @@ module.exports = {
         "1/8": "12.5%",
         "1/16": "6.25%",
       },
+      borderRadius: {
+        "4xl": "2rem",
+        "5xl": "2.5rem",
+        "6xl": "3rem",
+      },
       animation: {
         float: "float 20s infinite ease-in-out",
       },

@@ -211,8 +211,10 @@ export default function SpotifyPlayer() {
     return (
       <Button
         onClick={toggleFullScreen}
-        className={`relative shrink-0 overflow-hidden outline-none rounded-xl group ${
-          !tvMode ? "w-full md:h-full md:w-auto" : "w-auto h-full"
+        className={`relative shrink-0 overflow-hidden outline-none group ${
+          !tvMode
+            ? "w-full md:h-full md:w-auto rounded-xl"
+            : "w-auto h-full rounded-3xl"
         }`}
       >
         <img
@@ -372,10 +374,10 @@ export default function SpotifyPlayer() {
     >
       <div className="absolute flex gap-3 flex-col items-center justify-center transition-all ease-out data-[closed]:scale-50 data-[closed]:opacity-0 inset-4">
         <div
-          className={`bg-zinc-900/5 backdrop-blur-xl p-4 rounded-2xl ${
+          className={`bg-zinc-900/5 backdrop-blur-xl ${
             tvMode
-              ? "w-full h-3/4 md:h-3/5 md:max-w-[90%]"
-              : "sm:max-w-md w-full"
+              ? "w-full h-3/4 md:h-3/5 md:max-w-[90%] rounded-6xl p-8"
+              : "sm:max-w-md w-full rounded-2xl p-4"
           }`}
         >
           <div
