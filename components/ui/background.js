@@ -1,17 +1,16 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useMemo } from "react";
+import { Transition } from "@headlessui/react";
+import { ShaderGradient, ShaderGradientCanvas } from "shadergradient";
 import { useSpotify } from "@/components/providers/SpotifyProvider";
-import { useMediaQuery } from "@/components/utils/hooks";
 
 export default function RandomCircle() {
   const { currentPalette } = useSpotify();
-  const [circles, setCircles] = useState([]);
-  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const { darkestColor, otherColors } = useMemo(() => {
     if (!currentPalette?.length) {
-      return { darkestColor: "#18181b", otherColors: ["#18181b"] };
+      return { darkestColor: "#18181b", otherColors: ["#18181b", "#18181b"] };
     }
 
     const sortedColors = [...currentPalette].sort(
@@ -19,57 +18,55 @@ export default function RandomCircle() {
     );
     return {
       darkestColor: sortedColors[0].hex,
-      otherColors: sortedColors.slice(1).map((color) => color.hex),
+      otherColors: [
+        sortedColors[1]?.hex || "#18181b",
+        sortedColors[2]?.hex || "#18181b",
+      ],
     };
   }, [currentPalette]);
 
-  const generateCircles = useCallback(() => {
-    const baseNumCircles = isMobile ? 5 : 10;
-    const numCircles = Math.max(
-      baseNumCircles,
-      Math.min(otherColors.length * (isMobile ? 2 : 2), isMobile ? 10 : 20)
-    );
-    const gridSize = Math.ceil(Math.sqrt(numCircles));
-    const cellSize = 100 / gridSize;
-
-    return Array.from({ length: numCircles }, (_, i) => ({
-      id: i,
-      x: `${(i % gridSize) * cellSize + Math.random() * cellSize * 0.8}%`,
-      y: `${
-        Math.floor(i / gridSize) * cellSize + Math.random() * cellSize * 0.8
-      }%`,
-      size: isMobile
-        ? `${Math.random() * 60 + 30}%`
-        : `${Math.random() * 20 + 10}%`,
-      color: otherColors[Math.floor(Math.random() * otherColors.length)],
-      animationDelay: `${Math.random() * 5}s`,
-    }));
-  }, [otherColors, isMobile]);
-
-  useEffect(() => {
-    if (!currentPalette?.length) return;
-    setCircles(generateCircles());
-  }, [generateCircles]);
-
   return (
-    <div
-      className="absolute inset-0 w-svw h-svh overflow-hidden"
-      style={{ backgroundColor: darkestColor }}
-    >
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj4KICA8ZmlsdGVyIGlkPSJub2lzZSIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+CiAgICA8ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC42NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgbnVtT2N0YXZlcz0iMyIgc2VlZD0iMiIgcmVzdWx0PSJub2lzZSI+PC9mZVR1cmJ1bGVuY2U+CiAgICA8ZmVDb2xvck1hdHJpeCB0eXBlPSJzYXR1cmF0ZSIgdmFsdWVzPSIwIj48L2ZlQ29sb3JNYXRyaXg+CiAgPC9maWx0ZXI+CiAgPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbHRlcj0idXJsKCNub2lzZSkiIG9wYWNpdHk9IjAuNCI+PC9yZWN0Pgo8L3N2Zz4=')] opacity-50" />
-      {circles.map(({ id, x, y, size, color, animationDelay }) => (
-        <div
-          key={id}
-          className="absolute rounded-full aspect-square h-auto opacity-50 blur-2xl animate-float transition-all ease-out duration-300"
-          style={{
-            backgroundColor: color,
-            animationDelay,
-            left: x,
-            top: y,
-            width: size,
-          }}
-        />
-      ))}
-    </div>
+    <Transition show={!!currentPalette?.length}>
+      <div className="absolute inset-0 w-svw h-svh overflow-hidden data-[closed]:opacity-0 duration-300 ease-out">
+        <div className="absolute z-[2] inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj4KICA8ZmlsdGVyIGlkPSJub2lzZSIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+CiAgICA8ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC42NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgbnVtT2N0YXZlcz0iMyIgc2VlZD0iMiIgcmVzdWx0PSJub2lzZSI+PC9mZVR1cmJ1bGVuY2U+CiAgICA8ZmVDb2xvck1hdHJpeCB0eXBlPSJzYXR1cmF0ZSIgdmFsdWVzPSIwIj48L2ZlQ29sb3JNYXRyaXg+CiAgPC9maWx0ZXI+CiAgPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbHRlcj0idXJsKCNub2lzZSkiIG9wYWNpdHk9IjAuNCI+PC9yZWN0Pgo8L3N2Zz4=')] opacity-50" />
+        <ShaderGradientCanvas>
+          <ShaderGradient
+            animate="on"
+            brightness={0.9}
+            cAzimuthAngle={180}
+            cDistance={2.8}
+            cPolarAngle={115}
+            cameraZoom={9.1}
+            color1={otherColors[0]}
+            color2={otherColors[1]}
+            color3={darkestColor}
+            frameRate={60}
+            grain="off"
+            lightType="3d"
+            positionX={0}
+            positionY={0}
+            positionZ={0}
+            range="disabled"
+            rangeEnd={40}
+            rangeStart={0}
+            reflection={0.1}
+            rotationX={0}
+            rotationY={0}
+            rotationZ={235}
+            shader="defaults"
+            type="waterPlane"
+            uAmplitude={0}
+            uDensity={1.1}
+            uFrequency={0}
+            uSpeed={0.1}
+            uStrength={2.4}
+            uTime={8}
+            wireframe={false}
+            zoomOut={false}
+            enableTransition={false}
+          />
+        </ShaderGradientCanvas>
+      </div>
+    </Transition>
   );
 }
