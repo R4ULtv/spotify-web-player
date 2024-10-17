@@ -10,7 +10,7 @@ import RotateDeviceDrawer from "@/components/ui/RotateDeviceDrawer";
 
 export default function Home() {
   return (
-    <SessionProvider refetchOnWindowFocus={false}>
+    <SessionProvider refetchOnWindowFocus={false} refetchInterval={300}>
       <SpotifyProvider>
         <MediaProvider>
           <main className="relative w-svw h-svh z-10">
