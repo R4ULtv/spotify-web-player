@@ -67,7 +67,7 @@ export default async function Login({ searchParams }) {
           </p>
 
           <p className="text-sm text-zinc-400 max-w-xl text-center text-balance mt-3">
-            Build for You by{" "}
+            Built for You by{" "}
             <a href="https://www.raulcarini.dev" className="font-semibold">
               Raul Carini
             </a>
