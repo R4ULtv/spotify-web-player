@@ -9,13 +9,22 @@ import {
   useCallback,
 } from "react";
 
-// Create a context for Media-related data and functions
 const MediaContext = createContext();
+
+const FULLSCREEN_METHODS = {
+  enter: [
+    "requestFullscreen",
+    "webkitRequestFullscreen",
+    "msRequestFullscreen",
+  ],
+  exit: ["exitFullscreen", "webkitExitFullscreen", "msExitFullscreen"],
+};
 
 export const MediaProvider = ({ children }) => {
   const [fullScreen, setFullScreen] = useState(false);
   const [isPortrait, setIsPortrait] = useState(false);
   const [isOpenTrackDrawer, setIsOpenTrackDrawer] = useState(false);
+  const [selectedDrawerTab, setSelectedDrawerTab] = useState(0);
   const [isOpenRotateDeviceDrawer, setIsOpenRotateDeviceDrawer] =
     useState(false);
 
@@ -23,34 +32,23 @@ export const MediaProvider = ({ children }) => {
     setIsPortrait(window.innerHeight > window.innerWidth);
   }, []);
 
-  // Toggle fullscreen mode on/off
   const toggleFullScreen = useCallback(() => {
-    let html = document.documentElement;
+    const html = document.documentElement;
+    const doc = document;
 
-    function openFullscreen() {
-      if (html.requestFullscreen) {
-        html.requestFullscreen();
-      } else if (html.webkitRequestFullscreen) {
-        html.webkitRequestFullscreen();
-      } else if (html.msRequestFullscreen) {
-        html.msRequestFullscreen();
-      }
-    }
+    const toggleFullScreenMode = (isEntering) => {
+      const methodList = FULLSCREEN_METHODS[isEntering ? "enter" : "exit"];
+      const element = isEntering ? html : doc;
 
-    function closeFullscreen() {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      } else if (document.msExitFullscreen) {
-        document.msExitFullscreen();
+      for (const method of methodList) {
+        if (element[method]) {
+          element[method]();
+          break;
+        }
       }
-    }
-    if (fullScreen) {
-      closeFullscreen();
-    } else {
-      openFullscreen();
-    }
+    };
+
+    toggleFullScreenMode(!fullScreen);
     setFullScreen((prev) => !prev);
   }, [fullScreen]);
 
@@ -62,31 +60,38 @@ export const MediaProvider = ({ children }) => {
 
   useEffect(() => {
     const handleKeyPress = (e) => {
-      if (
-        e.key === "p" &&
-        !e.ctrlKey &&
-        !e.altKey &&
-        !e.metaKey &&
-        !e.shiftKey
-      ) {
-        e.preventDefault();
-        setIsOpenTrackDrawer((prev) => !prev);
-      }
-      if (
-        (e.key === "f" || e.key === "F11") &&
-        !e.ctrlKey &&
-        !e.altKey &&
-        !e.metaKey &&
-        !e.shiftKey
-      ) {
-        e.preventDefault();
-        toggleFullScreen();
+      if (e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) return;
+
+      switch (e.key.toLowerCase()) {
+        case "p":
+          e.preventDefault();
+          if (!isOpenTrackDrawer || selectedDrawerTab !== 1) {
+            setIsOpenTrackDrawer(true);
+            setSelectedDrawerTab(1);
+          } else {
+            setIsOpenTrackDrawer(false);
+          }
+          break;
+        case "q":
+          e.preventDefault();
+          if (!isOpenTrackDrawer || selectedDrawerTab !== 0) {
+            setIsOpenTrackDrawer(true);
+            setSelectedDrawerTab(0);
+          } else {
+            setIsOpenTrackDrawer(false);
+          }
+          break;
+        case "f":
+        case "f11":
+          e.preventDefault();
+          toggleFullScreen();
+          break;
       }
     };
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [toggleFullScreen, setIsOpenTrackDrawer]);
+  }, [toggleFullScreen, isOpenTrackDrawer, selectedDrawerTab]);
 
   const value = useMemo(
     () => ({
@@ -94,11 +99,20 @@ export const MediaProvider = ({ children }) => {
       isOpenRotateDeviceDrawer,
       isPortrait,
       fullScreen,
+      selectedDrawerTab,
+      setSelectedDrawerTab,
       toggleFullScreen,
       setIsOpenTrackDrawer,
       setIsOpenRotateDeviceDrawer,
     }),
-    [isOpenTrackDrawer, isOpenRotateDeviceDrawer, isPortrait, fullScreen]
+    [
+      isOpenTrackDrawer,
+      isOpenRotateDeviceDrawer,
+      isPortrait,
+      fullScreen,
+      selectedDrawerTab,
+      toggleFullScreen,
+    ]
   );
 
   return (
@@ -106,7 +120,6 @@ export const MediaProvider = ({ children }) => {
   );
 };
 
-// Custom hook to access Media context
 export const useMedia = () => {
   const context = useContext(MediaContext);
   if (!context) {
