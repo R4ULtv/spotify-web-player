@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { Transition } from "@headlessui/react";
 import { ShaderGradient, ShaderGradientCanvas } from "shadergradient";
 import { useSpotify } from "@/components/providers/SpotifyProvider";
+import { calculateDeltaE } from "@/components/utils/hooks";
 
 export default function GradientBackground() {
   const { currentPalette } = useSpotify();
@@ -15,13 +16,24 @@ export default function GradientBackground() {
       (a, b) => a.lightness - b.lightness,
     );
     const darkestColor = sortedColors[0].hex;
+
     const otherColors = sortedColors
       .slice(1)
       .sort((a, b) => b.area - a.area)
-      .slice(0, 2)
+      .filter((color, index, array) => {
+        if (index === array.length - 1) return true;
+        const deltaE = calculateDeltaE(
+          { r: color.red, g: color.green, b: color.blue },
+          {
+            r: array[index + 1].red,
+            g: array[index + 1].green,
+            b: array[index + 1].blue,
+          },
+        );
+        return deltaE >= 30;
+      })
       .map((color) => color.hex);
 
-    // If we don't have enough colors, pad with the darkest color
     while (otherColors.length < 2) {
       otherColors.push(darkestColor);
     }
