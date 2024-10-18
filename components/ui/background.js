@@ -13,16 +13,23 @@ export default function RandomCircle() {
       return { darkestColor: "#18181b", otherColors: ["#18181b", "#18181b"] };
     }
 
-    const sortedColors = [...currentPalette].sort(
+    const sortedByLightness = [...currentPalette].sort(
       (a, b) => a.lightness - b.lightness
     );
-    return {
-      darkestColor: sortedColors[0].hex,
-      otherColors: [
-        sortedColors[1]?.hex || "#18181b",
-        sortedColors[2]?.hex || "#18181b",
-      ],
-    };
+    const sortedByArea = [...currentPalette].sort((a, b) => b.area - a.area);
+
+    const darkestColor = sortedByLightness[0].hex;
+    const otherColors = sortedByArea
+      .filter((color) => color.hex !== darkestColor)
+      .slice(0, 2)
+      .map((color) => color.hex);
+
+    // If we don't have enough colors, pad with the darkest color
+    while (otherColors.length < 2) {
+      otherColors.push(darkestColor);
+    }
+
+    return { darkestColor, otherColors };
   }, [currentPalette]);
 
   return (
