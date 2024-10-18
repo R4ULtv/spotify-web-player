@@ -5,22 +5,19 @@ import { Transition } from "@headlessui/react";
 import { ShaderGradient, ShaderGradientCanvas } from "shadergradient";
 import { useSpotify } from "@/components/providers/SpotifyProvider";
 
-export default function RandomCircle() {
+export default function GradientBackground() {
   const { currentPalette } = useSpotify();
 
   const { darkestColor, otherColors } = useMemo(() => {
-    if (!currentPalette?.length) {
-      return { darkestColor: "#18181b", otherColors: ["#18181b", "#18181b"] };
-    }
+    if (!currentPalette?.length) return { darkestColor: "", otherColors: [] };
 
-    const sortedByLightness = [...currentPalette].sort(
-      (a, b) => a.lightness - b.lightness
+    const sortedColors = [...currentPalette].sort(
+      (a, b) => a.lightness - b.lightness,
     );
-    const sortedByArea = [...currentPalette].sort((a, b) => b.area - a.area);
-
-    const darkestColor = sortedByLightness[0].hex;
-    const otherColors = sortedByArea
-      .filter((color) => color.hex !== darkestColor)
+    const darkestColor = sortedColors[0].hex;
+    const otherColors = sortedColors
+      .slice(1)
+      .sort((a, b) => b.area - a.area)
       .slice(0, 2)
       .map((color) => color.hex);
 
