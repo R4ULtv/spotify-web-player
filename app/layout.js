@@ -28,7 +28,8 @@ export default function RootLayout({ children }) {
         <Toaster
           toastOptions={{
             classNames: {
-              toast: "bg-zinc-900/50 border-0 text-zinc-200 gap-2",
+              toast:
+                "border border-zinc-500/50 bg-zinc-900/75 text-zinc-200 gap-2",
             },
           }}
         />
