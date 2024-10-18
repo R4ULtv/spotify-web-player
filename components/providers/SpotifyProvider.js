@@ -58,7 +58,7 @@ export const SpotifyProvider = ({ children }) => {
       }
       return res;
     },
-    [session?.accessToken]
+    [session?.accessToken],
   );
 
   // Generic handler for Spotify actions with error handling and track refresh
@@ -80,11 +80,15 @@ export const SpotifyProvider = ({ children }) => {
           fetchWithAuth(
             `/me/player/shuffle?state=${!playerState.currentTrack
               ?.shuffleState}`,
-            { method: "PUT" }
+            { method: "PUT" },
           ),
-        "Failed to toggle shuffle"
+        "Failed to toggle shuffle",
       ),
-    [fetchWithAuth, playerState.currentTrack?.shuffleState, handleSpotifyAction]
+    [
+      fetchWithAuth,
+      playerState.currentTrack?.shuffleState,
+      handleSpotifyAction,
+    ],
   );
 
   // Rotate through repeat states: off -> context -> track -> off
@@ -100,7 +104,7 @@ export const SpotifyProvider = ({ children }) => {
         fetchWithAuth(`/me/player/repeat?state=${nextState}`, {
           method: "PUT",
         }),
-      "Failed to change repeat state"
+      "Failed to change repeat state",
     );
   }, [
     fetchWithAuth,
@@ -115,11 +119,11 @@ export const SpotifyProvider = ({ children }) => {
         () =>
           fetchWithAuth(
             `/me/player/${playerState.isPlaying ? "pause" : "play"}`,
-            { method: "PUT" }
+            { method: "PUT" },
           ),
-        "Failed to toggle play"
+        "Failed to toggle play",
       ),
-    [fetchWithAuth, playerState.isPlaying, handleSpotifyAction]
+    [fetchWithAuth, playerState.isPlaying, handleSpotifyAction],
   );
 
   // Skip to the previous track in the queue
@@ -127,9 +131,9 @@ export const SpotifyProvider = ({ children }) => {
     () =>
       handleSpotifyAction(
         () => fetchWithAuth("/me/player/previous", { method: "POST" }),
-        "Failed to skip to previous"
+        "Failed to skip to previous",
       ),
-    [fetchWithAuth, handleSpotifyAction]
+    [fetchWithAuth, handleSpotifyAction],
   );
 
   // Skip to the next track in the queue
@@ -137,9 +141,9 @@ export const SpotifyProvider = ({ children }) => {
     () =>
       handleSpotifyAction(
         () => fetchWithAuth("/me/player/next", { method: "POST" }),
-        "Failed to skip to next"
+        "Failed to skip to next",
       ),
-    [fetchWithAuth, handleSpotifyAction]
+    [fetchWithAuth, handleSpotifyAction],
   );
 
   // Add a new function to fetch the queue
@@ -153,21 +157,20 @@ export const SpotifyProvider = ({ children }) => {
         }));
       } else {
         const data = await res.json();
-        const queueTracks = data.queue.map((item) => ({
-          uri: item.track.uri,
-          name: item.track.name,
-          link: item.track.external_urls.spotify,
-          artists: item.track.artists.map((artist) => ({
+        const queueTracks = data.queue.map((item, index) => ({
+          name: item.name,
+          link: item.external_urls.spotify,
+          artists: item.artists.map((artist) => ({
             name: artist.name,
             link: artist.external_urls.spotify,
           })),
           album: {
-            name: item.track.album.name,
-            images: item.track.album.images,
-            link: item.track.album.external_urls.spotify,
+            name: item.album.name,
+            images: item.album.images,
+            link: item.album.external_urls.spotify,
           },
-          durationMs: item.track.duration_ms,
-          explicit: item.track.explicit,
+          durationMs: item.duration_ms,
+          explicit: item.explicit,
         }));
         setPlayerState((prev) => ({
           ...prev,
@@ -191,7 +194,7 @@ export const SpotifyProvider = ({ children }) => {
       const res = await fetchWithAuth("/me/player");
       if (res.status === 204) {
         setPlayerState((prev) =>
-          prev.currentTrack ? { ...prev, currentTrack: null } : prev
+          prev.currentTrack ? { ...prev, currentTrack: null } : prev,
         );
         return;
       }
@@ -334,7 +337,7 @@ export const SpotifyProvider = ({ children }) => {
         console.error("Error seeking within track:", error);
       }
     },
-    [fetchWithAuth, playerState.currentTrack]
+    [fetchWithAuth, playerState.currentTrack],
   );
 
   // Handle shortcuts for actions
@@ -358,8 +361,8 @@ export const SpotifyProvider = ({ children }) => {
           seekTrack(
             Math.min(
               playerState.currentTrack.durationMs,
-              playerState.progress + 10000
-            )
+              playerState.progress + 10000,
+            ),
           );
         } else if (!e.ctrlKey && !e.altKey && !e.metaKey) {
           skipToNext();
@@ -461,7 +464,7 @@ export const SpotifyProvider = ({ children }) => {
       rotateRepeatState,
       toggleTvMode,
       seekTrack,
-    ]
+    ],
   );
 
   return (

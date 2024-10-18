@@ -49,7 +49,7 @@ export default function TracksDrawer() {
         ))}
       </div>
     ),
-    [recentlyTracks, isDesktop]
+    [recentlyTracks, isDesktop],
   );
 
   const queueList = useMemo(
@@ -69,14 +69,14 @@ export default function TracksDrawer() {
           ))}
         </div>
       ),
-    [currentQueue, isDesktop]
+    [currentQueue, isDesktop],
   );
 
   const titles = ["Queue", "Recently Played Tracks"];
   const descriptions = [
     getDescription(
       "queue",
-      currentQueue !== "premium_required" ? currentQueue : []
+      currentQueue !== "premium_required" ? currentQueue : [],
     ),
     getDescription("recentlyTracks", recentlyTracks),
   ];
@@ -160,9 +160,11 @@ function TrackItem({ track, isDesktop }) {
         <span className="text-zinc-200 text-xs">
           {formatTime(track.durationMs)}
         </span>
-        <span className="text-zinc-400 text-xs">
-          {formatRelativeTime(track.playedAt)}
-        </span>
+        {track.playedAt && (
+          <span className="text-zinc-400 text-xs">
+            {formatRelativeTime(track.playedAt)}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -175,8 +177,8 @@ function getDescription(type, tracks) {
       ? `Next ${count} tracks`
       : "No tracks in the queue"
     : count
-    ? `Last ${count} tracks`
-    : "No recently played tracks";
+      ? `Last ${count} tracks`
+      : "No recently played tracks";
 }
 
 function DesktopDialog({
