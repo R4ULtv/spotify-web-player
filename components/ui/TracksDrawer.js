@@ -8,6 +8,11 @@ import {
   DialogPanel,
   DialogTitle,
   Description,
+  TabGroup,
+  TabPanels,
+  TabPanel,
+  TabList,
+  Tab,
 } from "@headlessui/react";
 
 import { useSpotify } from "@/components/providers/SpotifyProvider";
@@ -17,47 +22,88 @@ import {
   formatTime,
   useMediaQuery,
 } from "@/components/utils/hooks";
+import { QueueIcon, RecentlyTracksIcon } from "@/components/utils/icons";
+
+const SNAP_POINTS = [0.6, 1];
 
 export default function TracksDrawer() {
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const snapPoints = useMemo(() => [0.6, 1], []);
-  const [snap, setSnap] = useState(snapPoints[0]);
-  const { recentlyTracks } = useSpotify();
-  const { isOpenTrackDrawer, setIsOpenTrackDrawer } = useMedia();
+  const [snap, setSnap] = useState(SNAP_POINTS[0]);
+  const { recentlyTracks, currentQueue } = useSpotify();
+  const {
+    isOpenTrackDrawer,
+    setIsOpenTrackDrawer,
+    selectedDrawerTab,
+    setSelectedDrawerTab,
+  } = useMedia();
 
   const TrackList = useMemo(
     () => (
       <div className="flex flex-col gap-2">
         {recentlyTracks.map((track, index) => (
-          <TrackItem key={index} track={track} isDesktop={isDesktop} />
+          <TrackItem
+            key={track.id || index}
+            track={track}
+            isDesktop={isDesktop}
+          />
         ))}
       </div>
     ),
     [recentlyTracks, isDesktop]
   );
 
-  if (isDesktop) {
-    return (
-      <DesktopDialog
-        isOpen={isOpenTrackDrawer}
-        onClose={() => setIsOpenTrackDrawer(false)}
-        title="Recently Played Tracks"
-        description={getDescription(recentlyTracks)}
-        content={TrackList}
-      />
-    );
-  }
+  const queueList = useMemo(
+    () =>
+      currentQueue === "premium_required" ? (
+        <div className="text-sm">
+          Spotify Premium is required to view the queue.
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {currentQueue.map((track, index) => (
+            <TrackItem
+              key={track.id || index}
+              track={track}
+              isDesktop={isDesktop}
+            />
+          ))}
+        </div>
+      ),
+    [currentQueue, isDesktop]
+  );
 
-  return (
+  const titles = ["Queue", "Recently Played Tracks"];
+  const descriptions = [
+    getDescription(
+      "queue",
+      currentQueue !== "premium_required" ? currentQueue : []
+    ),
+    getDescription("recentlyTracks", recentlyTracks),
+  ];
+  const contents = [queueList, TrackList];
+
+  return isDesktop ? (
+    <DesktopDialog
+      isOpen={isOpenTrackDrawer}
+      onClose={() => setIsOpenTrackDrawer(false)}
+      title={titles}
+      description={descriptions}
+      content={contents}
+      selectedIndex={selectedDrawerTab}
+      setSelectedIndex={setSelectedDrawerTab}
+    />
+  ) : (
     <MobileDrawer
       isOpen={isOpenTrackDrawer}
       onClose={() => setIsOpenTrackDrawer(false)}
-      snapPoints={snapPoints}
+      snapPoints={SNAP_POINTS}
       snap={snap}
       setSnap={setSnap}
-      title="Recently Played Tracks"
-      description={getDescription(recentlyTracks)}
-      content={TrackList}
+      title={titles}
+      description={descriptions}
+      content={contents}
+      selectedIndex={selectedDrawerTab}
+      setSelectedIndex={setSelectedDrawerTab}
     />
   );
 }
@@ -90,7 +136,7 @@ function TrackItem({ track, isDesktop }) {
           {isDesktop ? (
             <div className="flex gap-1">
               {track.artists.map((artist, index) => (
-                <Fragment key={artist.name}>
+                <Fragment key={artist.id || artist.name}>
                   <a
                     href={artist.link}
                     className="text-zinc-400 text-xs truncate hover:underline"
@@ -122,13 +168,26 @@ function TrackItem({ track, isDesktop }) {
   );
 }
 
-function getDescription(tracks) {
-  return tracks.length
-    ? `Last ${tracks.length} tracks`
+function getDescription(type, tracks) {
+  const count = tracks?.length ?? 0;
+  return type === "queue"
+    ? count
+      ? `Next ${count} tracks`
+      : "No tracks in the queue"
+    : count
+    ? `Last ${count} tracks`
     : "No recently played tracks";
 }
 
-function DesktopDialog({ isOpen, onClose, title, description, content }) {
+function DesktopDialog({
+  isOpen,
+  onClose,
+  title,
+  description,
+  content,
+  selectedIndex,
+  setSelectedIndex,
+}) {
   return (
     <Dialog open={isOpen} onClose={onClose}>
       <DialogBackdrop
@@ -140,15 +199,28 @@ function DesktopDialog({ isOpen, onClose, title, description, content }) {
           transition
           className="bg-zinc-900/50 backdrop-blur-xl flex flex-col rounded-2xl max-w-2xl w-full max-h-[90%] h-auto outline-none z-20 data-[closed]:opacity-0 data-[closed]:scale-50 ease-out duration-150"
         >
-          <div className="p-6 flex-1 overflow-y-auto">
-            <DialogTitle className="font-bold text-gray-200">
-              {title}
-            </DialogTitle>
-            <Description className="text-zinc-400 text-sm mb-2">
-              {description}
-            </Description>
-            {content}
-          </div>
+          <TabGroup
+            selectedIndex={selectedIndex}
+            onChange={setSelectedIndex}
+            className="p-6 flex-1 overflow-y-auto"
+          >
+            <TabList className="flex items-center justify-between w-full">
+              <div>
+                <DialogTitle className="font-bold text-gray-200">
+                  {title[selectedIndex]}
+                </DialogTitle>
+                <Description className="text-zinc-400 text-sm mb-2">
+                  {description[selectedIndex]}
+                </Description>
+              </div>
+              <TabButtons />
+            </TabList>
+            <TabPanels>
+              {content.map((panel, index) => (
+                <TabPanel key={index}>{panel}</TabPanel>
+              ))}
+            </TabPanels>
+          </TabGroup>
         </DialogPanel>
       </div>
     </Dialog>
@@ -164,6 +236,8 @@ function MobileDrawer({
   title,
   description,
   content,
+  selectedIndex,
+  setSelectedIndex,
 }) {
   return (
     <Drawer.Root
@@ -177,7 +251,9 @@ function MobileDrawer({
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-20" />
         <Drawer.Content className="bg-zinc-900/50 backdrop-blur-xl flex flex-col rounded-t-2xl mt-24 h-[95%] fixed bottom-0 inset-x-0 mx-auto w-full md:max-w-2xl outline-none z-20">
-          <div
+          <TabGroup
+            selectedIndex={selectedIndex}
+            onChange={setSelectedIndex}
             className={`p-6 flex-1 ${
               snap === 1 ? "overflow-y-auto" : "overflow-y-hidden"
             }`}
@@ -189,17 +265,41 @@ function MobileDrawer({
                   snap === snapPoints[0] ? "animate-bounce" : ""
                 }`}
               />
-              <Drawer.Title className="font-bold text-gray-200">
-                {title}
-              </Drawer.Title>
-              <Drawer.Description className="text-zinc-400 text-sm mb-2">
-                {description}
-              </Drawer.Description>
-              {content}
+              <TabList className="flex items-center justify-between w-full">
+                <div>
+                  <Drawer.Title className="font-bold text-gray-200">
+                    {title[selectedIndex]}
+                  </Drawer.Title>
+                  <Drawer.Description className="text-zinc-400 text-sm mb-2">
+                    {description[selectedIndex]}
+                  </Drawer.Description>
+                </div>
+                <TabButtons />
+              </TabList>
+              <TabPanels>
+                {content.map((panel, index) => (
+                  <TabPanel key={index}>{panel}</TabPanel>
+                ))}
+              </TabPanels>
             </div>
-          </div>
+          </TabGroup>
         </Drawer.Content>
       </Drawer.Portal>
     </Drawer.Root>
+  );
+}
+
+function TabButtons() {
+  return (
+    <div className="flex items-center justify-end gap-2">
+      <Tab className="text-sm data-[selected]:font-semibold text-zinc-200 data-[selected]:text-zinc-100 data-[selected]:border border-zinc-500/50 px-2 py-1 flex items-center gap-1 rounded-md">
+        <QueueIcon className="size-4" />
+        <span className="hidden md:block">Queue</span>
+      </Tab>
+      <Tab className="text-sm data-[selected]:font-semibold text-zinc-200 data-[selected]:text-zinc-100 data-[selected]:border border-zinc-500/50 px-2 py-1 flex items-center gap-1 rounded-md">
+        <RecentlyTracksIcon className="size-4" />
+        <span className="hidden md:block">Recently Played</span>
+      </Tab>
+    </div>
   );
 }
