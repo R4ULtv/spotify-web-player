@@ -48,6 +48,9 @@ export const SpotifyProvider = ({ children }) => {
         if (error.reason === "PREMIUM_REQUIRED") {
           throw new Error("Spotify Premium is required for this action");
         }
+        if (url === "/me/player/queue") {
+          return res;
+        }
         throw new Error("Invalid access token");
       }
       if (!res.ok) {
@@ -143,15 +146,44 @@ export const SpotifyProvider = ({ children }) => {
   const fetchQueue = useCallback(async () => {
     try {
       const res = await fetchWithAuth("/me/player/queue");
-      const data = await res.json();
-      setPlayerState((prev) => ({
-        ...prev,
-        currentQueue: data.queue,
-      }));
+      if (res.status === 403) {
+        setPlayerState((prev) => ({
+          ...prev,
+          currentQueue: "premium_required",
+        }));
+      } else {
+        const data = await res.json();
+        const queueTracks = data.queue.map((item) => ({
+          uri: item.track.uri,
+          name: item.track.name,
+          link: item.track.external_urls.spotify,
+          artists: item.track.artists.map((artist) => ({
+            name: artist.name,
+            link: artist.external_urls.spotify,
+          })),
+          album: {
+            name: item.track.album.name,
+            images: item.track.album.images,
+            link: item.track.album.external_urls.spotify,
+          },
+          durationMs: item.track.duration_ms,
+          explicit: item.track.explicit,
+        }));
+        setPlayerState((prev) => ({
+          ...prev,
+          currentQueue: queueTracks,
+        }));
+      }
     } catch (error) {
       console.error("Error fetching queue:", error);
     }
-  }, [fetchWithAuth]);
+  }, [fetchWithAuth, setPlayerState, playerState.currentTrack?.name]);
+
+  useEffect(() => {
+    if (session?.accessToken) {
+      fetchQueue();
+    }
+  }, [fetchQueue, session?.accessToken]);
 
   // Fetch the currently playing track information
   const fetchCurrentTrack = useCallback(async () => {

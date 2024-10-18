@@ -183,8 +183,13 @@ export default function SpotifyPlayer() {
     isPlayingAds,
   } = useSpotify();
 
-  const { setIsOpenTrackDrawer, isPortrait, toggleFullScreen, fullScreen } =
-    useMedia();
+  const {
+    setIsOpenTrackDrawer,
+    setSelectedDrawerTab,
+    isPortrait,
+    toggleFullScreen,
+    fullScreen,
+  } = useMedia();
 
   const [sliderValue, setSliderValue] = useState(progressPercentage);
   const [isDragging, setIsDragging] = useState(false);
@@ -214,7 +219,7 @@ export default function SpotifyPlayer() {
         className={`relative shrink-0 overflow-hidden outline-none group ${
           !tvMode
             ? "w-full md:h-full md:w-auto rounded-xl"
-            : "w-auto h-full rounded-3xl"
+            : "w-auto h-full rounded-xl md:rounded-3xl"
         }`}
       >
         <img
@@ -271,7 +276,10 @@ export default function SpotifyPlayer() {
         </div>
         <div className="flex items-center justify-between">
           <Button
-            onClick={() => setIsOpenTrackDrawer(true)}
+            onClick={() => {
+              setSelectedDrawerTab(1);
+              setIsOpenTrackDrawer(true);
+            }}
             className={`p-1 outline-none relative group text-zinc-200 ${
               tvMode ? "scale-150" : ""
             }`}
@@ -344,6 +352,10 @@ export default function SpotifyPlayer() {
             </Button>
           </div>
           <Button
+            onClick={() => {
+              setSelectedDrawerTab(0);
+              setIsOpenTrackDrawer(true);
+            }}
             className={`p-1 outline-none relative group text-zinc-200 ${
               tvMode ? "scale-150" : ""
             }`}
@@ -376,7 +388,7 @@ export default function SpotifyPlayer() {
         <div
           className={`bg-zinc-900/5 backdrop-blur-xl ${
             tvMode
-              ? "w-full h-3/4 md:h-3/5 md:max-w-[90%] rounded-6xl p-8"
+              ? "w-full h-3/4 md:h-3/5 md:max-w-[90%] rounded-3xl p-4 md:rounded-6xl md:p-8"
               : "sm:max-w-md w-full rounded-2xl p-4"
           }`}
         >
