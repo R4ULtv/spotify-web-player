@@ -40,7 +40,6 @@ export const MediaProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    console.log(isMobile, isPortrait);
     if (isMobile && !isPortrait) {
       setTvMode(true);
       localStorage.setItem("tvMode", "true");
