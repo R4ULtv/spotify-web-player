@@ -29,7 +29,6 @@ export const SpotifyProvider = ({ children }) => {
     isPlaying: false,
     progress: 0,
     currentPalette: null,
-    tvMode: false,
   });
 
   // Fetch data from Spotify API with authentication
@@ -273,14 +272,6 @@ export const SpotifyProvider = ({ children }) => {
     }
   }, [fetchCurrentTrack, session?.accessToken]);
 
-  // Load TV mode setting from localStorage on initial render
-  useEffect(() => {
-    const storedTvMode = localStorage.getItem("tvMode");
-    if (storedTvMode) {
-      setPlayerState((prev) => ({ ...prev, tvMode: storedTvMode === "true" }));
-    }
-  }, []);
-
   // Update document title and fetch color palette when current track changes
   useEffect(() => {
     const currentAlbumImageUrl =
@@ -311,15 +302,6 @@ export const SpotifyProvider = ({ children }) => {
 
     return () => clearInterval(progressInterval);
   }, [playerState.currentTrack, playerState.isPlaying]);
-
-  // Toggle TV mode on/off and save to localStorage
-  const toggleTvMode = useCallback(() => {
-    setPlayerState((prev) => {
-      const newTvMode = !prev.tvMode;
-      localStorage.setItem("tvMode", newTvMode);
-      return { ...prev, tvMode: newTvMode };
-    });
-  }, []);
 
   // Seek to a specific position within the current track
   const seekTrack = useCallback(
@@ -378,11 +360,6 @@ export const SpotifyProvider = ({ children }) => {
           rotateRepeatState();
         }
       },
-      t: (e) => {
-        if (!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
-          toggleTvMode();
-        }
-      },
     };
 
     const handleKeyDown = (event) => {
@@ -398,7 +375,6 @@ export const SpotifyProvider = ({ children }) => {
     skipToNext,
     toggleShuffle,
     rotateRepeatState,
-    toggleTvMode,
     seekTrack,
     playerState.currentTrack,
     playerState.progress,
@@ -452,7 +428,6 @@ export const SpotifyProvider = ({ children }) => {
       skipToNext,
       toggleShuffle,
       rotateRepeatState,
-      toggleTvMode,
       seekTrack,
     }),
     [
@@ -462,7 +437,6 @@ export const SpotifyProvider = ({ children }) => {
       skipToNext,
       toggleShuffle,
       rotateRepeatState,
-      toggleTvMode,
       seekTrack,
     ],
   );

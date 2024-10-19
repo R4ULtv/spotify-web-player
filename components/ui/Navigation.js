@@ -16,6 +16,7 @@ import {
 import { signOut } from "next-auth/react";
 import { Fragment, useEffect, useState, useCallback, useMemo } from "react";
 
+import { useMedia } from "@/components/providers/MediaProvider";
 import { useSpotify } from "@/components/providers/SpotifyProvider";
 import {
   Tooltip,
@@ -26,7 +27,8 @@ import {
 import { GithubIcon, SpotifyIcon } from "@/components/utils/icons";
 
 export default function Navigation() {
-  const { currentTrack, tvMode, toggleTvMode } = useSpotify();
+  const { currentTrack } = useSpotify();
+  const { tvMode, toggleTvMode } = useMedia();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -70,7 +72,7 @@ export default function Navigation() {
         onClick: () =>
           window.open(
             "https://github.com/R4ULtv/spotify-web-player/",
-            "_blank"
+            "_blank",
           ),
         divedeAfter: true,
       },
@@ -94,7 +96,7 @@ export default function Navigation() {
         onClick: () => signOut(),
       },
     ],
-    [currentTrack, tvMode, toggleTvMode]
+    [currentTrack, tvMode, toggleTvMode],
   );
 
   const renderNavItems = useCallback(
@@ -115,7 +117,7 @@ export default function Navigation() {
           {e.divedeAfter && <div className="bg-zinc-500/25 h-5 w-px" />}
         </Fragment>
       )),
-    [nav]
+    [nav],
   );
 
   return (

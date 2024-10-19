@@ -37,13 +37,13 @@ const TrackInfo = ({ currentTrack, tvMode }) => {
     const checkOverflow = () => {
       if (containerRef.current && contentRef.current) {
         setIsOverflowing(
-          contentRef.current.scrollWidth > containerRef.current.clientWidth
+          contentRef.current.scrollWidth > containerRef.current.clientWidth,
         );
       }
       if (artistsContainerRef.current && artistsContentRef.current) {
         setIsArtistsOverflowing(
           artistsContentRef.current.scrollWidth >
-            artistsContainerRef.current.clientWidth
+            artistsContainerRef.current.clientWidth,
         );
       }
     };
@@ -178,12 +178,12 @@ export default function SpotifyPlayer() {
     togglePlay,
     toggleShuffle,
     rotateRepeatState,
-    tvMode,
     seekTrack,
     isPlayingAds,
   } = useSpotify();
 
   const {
+    tvMode,
     setIsOpenTrackDrawer,
     setSelectedDrawerTab,
     isPortrait,

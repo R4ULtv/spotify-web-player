@@ -11,12 +11,10 @@ import {
 import { useEffect, useState } from "react";
 
 import { useMedia } from "@/components/providers/MediaProvider";
-import { useSpotify } from "@/components/providers/SpotifyProvider";
 import { RotateDeviceIcon } from "@/components/utils/icons";
 
 export default function RotateDeviceDrawer() {
-  const { isPortrait } = useMedia();
-  const { tvMode, toggleTvMode } = useSpotify();
+  const { isPortrait, tvMode, toggleTvMode } = useMedia();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
