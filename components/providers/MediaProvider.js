@@ -8,6 +8,7 @@ import {
   useEffect,
   useCallback,
 } from "react";
+import { useMediaQuery } from "@/components/utils/hooks";
 
 const MediaContext = createContext();
 
@@ -27,6 +28,33 @@ export const MediaProvider = ({ children }) => {
   const [selectedDrawerTab, setSelectedDrawerTab] = useState(0);
   const [isOpenRotateDeviceDrawer, setIsOpenRotateDeviceDrawer] =
     useState(false);
+  const [tvMode, setTvMode] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 1024px)");
+
+  // Load TV mode setting from localStorage on initial render
+  useEffect(() => {
+    const storedTvMode = localStorage.getItem("tvMode");
+    if (storedTvMode) {
+      setTvMode((prev) => storedTvMode === "true");
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log(isMobile, isPortrait);
+    if (isMobile && !isPortrait) {
+      setTvMode(true);
+      localStorage.setItem("tvMode", "true");
+    }
+  }, [isMobile, isPortrait]);
+
+  // Toggle TV mode on/off and save to localStorage
+  const toggleTvMode = useCallback(() => {
+    setTvMode((prev) => {
+      const newTvMode = !prev;
+      localStorage.setItem("tvMode", newTvMode);
+      return newTvMode;
+    });
+  }, []);
 
   const checkOrientation = useCallback(() => {
     setIsPortrait(window.innerHeight > window.innerWidth);
@@ -63,6 +91,10 @@ export const MediaProvider = ({ children }) => {
       if (e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) return;
 
       switch (e.key.toLowerCase()) {
+        case "t":
+          e.preventDefault();
+          toggleTvMode();
+          break;
         case "p":
           e.preventDefault();
           if (!isOpenTrackDrawer || selectedDrawerTab !== 1) {
@@ -91,7 +123,7 @@ export const MediaProvider = ({ children }) => {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [toggleFullScreen, isOpenTrackDrawer, selectedDrawerTab]);
+  }, [toggleFullScreen, toggleTvMode, isOpenTrackDrawer, selectedDrawerTab]);
 
   const value = useMemo(
     () => ({
@@ -101,6 +133,8 @@ export const MediaProvider = ({ children }) => {
       fullScreen,
       selectedDrawerTab,
       setSelectedDrawerTab,
+      tvMode,
+      toggleTvMode,
       toggleFullScreen,
       setIsOpenTrackDrawer,
       setIsOpenRotateDeviceDrawer,
@@ -112,7 +146,9 @@ export const MediaProvider = ({ children }) => {
       fullScreen,
       selectedDrawerTab,
       toggleFullScreen,
-    ]
+      tvMode,
+      toggleTvMode,
+    ],
   );
 
   return (
