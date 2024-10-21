@@ -2,7 +2,7 @@ import { SessionProvider } from "next-auth/react";
 
 import { SpotifyProvider } from "@/components/providers/SpotifyProvider";
 import { MediaProvider } from "@/components/providers/MediaProvider";
-import GradientBackground from "@/components/ui/background";
+import { DynamicBackground } from "@/components/ui/background";
 import SpotifyPlayer from "@/components/ui/SpotifyPlayer";
 import Navigation from "@/components/ui/Navigation";
 import TracksDrawer from "@/components/ui/TracksDrawer";
@@ -21,7 +21,7 @@ export default function Home() {
             <RotateDeviceDrawer />
           </main>
         </MediaProvider>
-        <GradientBackground />
+        <DynamicBackground />
       </SpotifyProvider>
     </SessionProvider>
   );
