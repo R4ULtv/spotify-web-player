@@ -10,7 +10,7 @@ import { ShootingStars } from "@/components/layout/shooting-stars";
 export default function Login() {
   return (
     <main>
-      <div className="relative min-h-full md:h-full">
+      <div className="relative">
         <div className="max-w-7xl mx-auto flex flex-col items-center justify-between md:justify-center w-full h-full px-3 py-8 md:px-8 md:py-40 z-10 relative">
           <div className="max-w-3xl">
             <h1 className="text-5xl sm:text-7xl text-zinc-100 font-black text-balance text-center">
