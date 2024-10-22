@@ -244,7 +244,7 @@ export const SpotifyProvider = ({ children }) => {
 
     try {
       const colors = await extractColors(imageUrl, {
-        crossOrigin: "Anonymous",
+        crossOrigin: "anonymous",
       });
       setPlayerState((prev) => ({ ...prev, currentPalette: colors }));
 
