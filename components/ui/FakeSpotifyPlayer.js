@@ -1,7 +1,12 @@
 "use client";
 import { Fragment, useCallback, useEffect, useState } from "react";
 
-import { Button } from "@headlessui/react";
+import {
+  Button,
+  Popover,
+  PopoverButton,
+  PopoverPanel,
+} from "@headlessui/react";
 import {
   BackwardIcon,
   ForwardIcon,
@@ -9,17 +14,23 @@ import {
   PlayIcon,
 } from "@heroicons/react/24/solid";
 import {
-  AdjustmentsHorizontalIcon,
   ArrowLeftIcon,
   ArrowPathIcon,
   ArrowRightIcon,
+  CheckIcon,
+  EyeSlashIcon,
   LinkIcon,
+  LockClosedIcon,
+  MinusIcon,
+  Square2StackIcon,
+  XMarkIcon,
 } from "@heroicons/react/16/solid";
 
 import { GradientBackground } from "@/components/ui/background";
 import { Slider } from "@/components/ui/slider";
 import { formatTime } from "@/components/utils/hooks";
 import {
+  ExpandIcon,
   QueueIcon,
   RecentlyTracksIcon,
   RepeatIcon,
@@ -28,6 +39,7 @@ import {
 import { exampleTracks as tracks } from "@/components/utils/tracks";
 
 export default function FakeSpotifyPlayer() {
+  const [copyStatus, setCopyStatus] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [playerState, setPlayerState] = useState({
     ...tracks[currentTrackIndex],
@@ -35,6 +47,14 @@ export default function FakeSpotifyPlayer() {
     isPlaying: true,
     shuffleState: true,
     repeatState: "all",
+  });
+
+  const copyAction = useCallback(() => {
+    navigator.clipboard.writeText(playerState.link);
+    setCopyStatus(true);
+    setTimeout(() => {
+      setCopyStatus(false);
+    }, 2000);
   });
 
   const resetTracks = useCallback(() => {
@@ -143,7 +163,7 @@ export default function FakeSpotifyPlayer() {
   ]);
 
   return (
-    <div className="w-full h-full flex gap-3 flex-col items-center justify-center relative aspect-video rounded-3xl overflow-hidden border-8 border-zinc-100/5 shadow-2xl shadow-zinc-100/5">
+    <div className="w-full h-full flex gap-3 flex-col items-center justify-center relative md:aspect-video rounded-3xl overflow-hidden border-8 p-4 border-zinc-100/5 shadow-2xl shadow-zinc-100/5">
       <div className="py-1.5 px-2 absolute top-0 w-full z-10 bg-zinc-900/75 text-zinc-500">
         <div className="flex items-center gap-1">
           <Button
@@ -166,16 +186,61 @@ export default function FakeSpotifyPlayer() {
           </Button>
           <div className="text-xs flex items-center justify-between gap-1.5 flex-1 text-zinc-300 py-0.5 px-1.5 bg-zinc-100/5 rounded">
             <div className="flex items-center gap-1.5">
-              <Button className="outline-none rounded group">
-                <AdjustmentsHorizontalIcon className="size-4 text-zinc-400 group-data-[hover]:text-zinc-300 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-300 group-data-[focus]:scale-110 ease-out duration-75" />
-              </Button>
-
-              {playerState.link.slice(8)}
+              <Popover className="h-4 whitespace-nowrap">
+                <PopoverButton className="outline-none rounded group">
+                  <LockClosedIcon className="size-4 text-zinc-400 group-data-[hover]:text-zinc-300 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-300 group-data-[focus]:scale-110 ease-out duration-75" />
+                </PopoverButton>
+                <PopoverPanel
+                  transition
+                  anchor="bottom"
+                  className="rounded-lg bg-zinc-900/75 text-sm space-y-2 p-2 mt-2.5 transition duration-150 ease-in-out [--anchor-gap:var(--spacing-5)] data-[closed]:-translate-y-3 data-[closed]:opacity-0 data-[closed]:scale-75 z-20"
+                >
+                  <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 text-xs font-semibold text-zinc-200 bg-zinc-100/5 px-1 py-0.5 rounded">
+                      <LockClosedIcon className="size-4" /> Secure
+                    </div>
+                    <div className="flex items-center gap-1 text-xs font-semibold text-zinc-200 bg-zinc-100/5 px-1 py-0.5 rounded">
+                      <EyeSlashIcon className="size-4" /> Private
+                    </div>
+                  </div>
+                  <div className="w-full h-px bg-zinc-100/5" />
+                  <div className="max-w-36 text-xs text-zinc-400 text-balance">
+                    This website is free and open-source under the MIT license.
+                  </div>
+                </PopoverPanel>
+              </Popover>
+              <span className="hidden md:block">
+                {playerState.link.slice(8)}
+              </span>
+              <span className="md:hidden max-w-36 truncate">
+                spti.fi/{encodeURIComponent(playerState.name.toLowerCase())}
+              </span>
             </div>
-            <Button className="outline-none rounded group">
-              <LinkIcon className="size-4 text-zinc-400 group-data-[hover]:text-zinc-300 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-300 group-data-[focus]:scale-110 ease-out duration-75" />
+            <Button
+              disabled={copyStatus}
+              onClick={copyAction}
+              className="outline-none rounded group"
+            >
+              {copyStatus ? (
+                <CheckIcon className="size-4 text-zinc-300" />
+              ) : (
+                <LinkIcon className="size-4 text-zinc-400 group-data-[hover]:text-zinc-300 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-300 group-data-[focus]:scale-110 ease-out duration-75" />
+              )}
             </Button>
           </div>
+
+          <Button className="p-0.5 bg-zinc-100/5 data-[hover]:bg-zinc-100/10 data-[focus]:bg-zinc-100/10 ease-out duration-75 outline-none rounded group">
+            <MinusIcon className="size-4 group-data-[hover]:text-zinc-400 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-400 group-data-[focus]:scale-110 ease-out duration-75" />
+          </Button>
+          <Button className="p-0.5 bg-zinc-100/5 data-[hover]:bg-zinc-100/10 data-[focus]:bg-zinc-100/10 ease-out duration-75 outline-none rounded group">
+            <Square2StackIcon
+              style={{ transform: "scaleX(-1)" }}
+              className="size-4 group-data-[hover]:text-zinc-400 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-400 group-data-[focus]:scale-110 ease-out duration-75"
+            />
+          </Button>
+          <Button className="p-0.5 bg-zinc-100/5 data-[hover]:bg-zinc-100/10 data-[focus]:bg-zinc-100/10 ease-out duration-75 outline-none rounded group">
+            <XMarkIcon className="size-4 group-data-[hover]:text-zinc-400 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-400 group-data-[focus]:scale-110 ease-out duration-75" />
+          </Button>
         </div>
       </div>
       <div className="mt-8 max-w-md w-full h-fit bg-zinc-900/5 backdrop-blur-xl rounded-2xl overflow-hidden z-10 p-4 relative">
