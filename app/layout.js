@@ -21,7 +21,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className="antialiased scroll-smooth">
       <body
-        className={`${GeistSans.className} bg-zinc-900 selection:bg-zinc-600/25`}
+        className={`${GeistSans.className} bg-spotify-black selection:bg-zinc-600/25`}
       >
         {children}
 

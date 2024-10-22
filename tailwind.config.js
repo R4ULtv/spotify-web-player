@@ -7,6 +7,12 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        spotify: {
+          green: "#1ED760",
+          black: "#121212",
+        },
+      },
       inset: {
         "1/8": "12.5%",
         "1/16": "6.25%",
