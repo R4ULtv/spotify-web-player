@@ -14,7 +14,7 @@ export const GradientBackground = ({ className, colors }) => {
         <ShaderGradientCanvas>
           <ShaderGradient
             animate="on"
-            brightness={0.9}
+            brightness={0.7}
             cAzimuthAngle={180}
             cDistance={2.8}
             cPolarAngle={115}
@@ -79,7 +79,7 @@ export function DynamicBackground() {
             b: array[index + 1].blue,
           },
         );
-        return deltaE >= 30;
+        return deltaE >= 35;
       })
       .map((color) => color.hex);
 
