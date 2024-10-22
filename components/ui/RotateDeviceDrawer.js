@@ -11,7 +11,7 @@ import {
 import { useEffect, useState } from "react";
 
 import { useMedia } from "@/components/providers/MediaProvider";
-import { RotateDeviceIcon } from "@/components/utils/icons";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 export default function RotateDeviceDrawer() {
   const { isPortrait, tvMode, toggleTvMode } = useMedia();
@@ -48,7 +48,7 @@ export default function RotateDeviceDrawer() {
               Please Rotate Your Device
             </DialogTitle>
             <div className="flex items-center justify-center p-2">
-              <RotateDeviceIcon className="size-12 text-gray-400 animate-[spin_4s_linear_infinite]" />
+              <ArrowPathIcon className="size-12 text-gray-400 animate-[spin_4s_linear_infinite]" />
             </div>
             <Description className="text-zinc-300 text-sm mb-2 text-center text-balance">
               For the best viewing experience in TV mode, please rotate your
