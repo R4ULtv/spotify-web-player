@@ -8,12 +8,6 @@ import {
   PopoverPanel,
 } from "@headlessui/react";
 import {
-  BackwardIcon,
-  ForwardIcon,
-  PauseIcon,
-  PlayIcon,
-} from "@heroicons/react/24/solid";
-import {
   ArrowLeftIcon,
   ArrowPathIcon,
   ArrowRightIcon,
@@ -25,12 +19,17 @@ import {
   Square2StackIcon,
   XMarkIcon,
 } from "@heroicons/react/16/solid";
+import {
+  BackwardIcon,
+  ForwardIcon,
+  PauseIcon,
+  PlayIcon,
+} from "@heroicons/react/24/solid";
 
 import { GradientBackground } from "@/components/ui/background";
 import { Slider } from "@/components/ui/slider";
 import { formatTime } from "@/components/utils/hooks";
 import {
-  ExpandIcon,
   QueueIcon,
   RecentlyTracksIcon,
   RepeatIcon,
@@ -163,22 +162,25 @@ export default function FakeSpotifyPlayer() {
   ]);
 
   return (
-    <div className="w-full h-full flex gap-3 flex-col items-center justify-center relative md:aspect-video rounded-3xl overflow-hidden border-8 p-4 border-zinc-100/5 shadow-2xl shadow-zinc-100/5">
+    <div className="relative w-full h-auto flex gap-3 flex-col items-center justify-center md:aspect-video rounded-3xl overflow-hidden border-8 p-4 border-zinc-100/5 shadow-2xl shadow-zinc-100/5">
       <div className="py-1.5 px-2 absolute top-0 w-full z-10 bg-zinc-900/75 text-zinc-500">
         <div className="flex items-center gap-1">
           <Button
+            aria-label="Previous track"
             onClick={previousTrack}
             className="p-0.5 bg-zinc-100/5 data-[hover]:bg-zinc-100/10 data-[focus]:bg-zinc-100/10 ease-out duration-75 outline-none rounded group"
           >
             <ArrowLeftIcon className="size-4 group-data-[hover]:text-zinc-400 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-400 group-data-[focus]:scale-110 ease-out duration-75" />
           </Button>
           <Button
+            aria-label="Next track"
             onClick={nextTrack}
             className="p-0.5 bg-zinc-100/5 data-[hover]:bg-zinc-100/10 data-[focus]:bg-zinc-100/10 ease-out duration-75 outline-none rounded group"
           >
             <ArrowRightIcon className="size-4 group-data-[hover]:text-zinc-400 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-400 group-data-[focus]:scale-110 ease-out duration-75" />
           </Button>
           <Button
+            aria-label="Reset tracks"
             onClick={resetTracks}
             className="p-0.5 bg-zinc-100/5 data-[hover]:bg-zinc-100/10 data-[focus]:bg-zinc-100/10 ease-out duration-75 outline-none rounded group"
           >
@@ -187,7 +189,10 @@ export default function FakeSpotifyPlayer() {
           <div className="text-xs flex items-center justify-between gap-1.5 flex-1 text-zinc-300 py-0.5 px-1.5 bg-zinc-100/5 rounded">
             <div className="flex items-center gap-1.5">
               <Popover className="h-4 whitespace-nowrap">
-                <PopoverButton className="outline-none rounded group">
+                <PopoverButton
+                  aria-label="Security info"
+                  className="outline-none rounded group"
+                >
                   <LockClosedIcon className="size-4 text-zinc-400 group-data-[hover]:text-zinc-300 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-300 group-data-[focus]:scale-110 ease-out duration-75" />
                 </PopoverButton>
                 <PopoverPanel
@@ -217,6 +222,7 @@ export default function FakeSpotifyPlayer() {
               </span>
             </div>
             <Button
+              aria-label="Copy link"
               disabled={copyStatus}
               onClick={copyAction}
               className="outline-none rounded group"
@@ -229,16 +235,16 @@ export default function FakeSpotifyPlayer() {
             </Button>
           </div>
 
-          <Button className="p-0.5 bg-zinc-100/5 data-[hover]:bg-zinc-100/10 data-[focus]:bg-zinc-100/10 ease-out duration-75 outline-none rounded group">
+          <Button className="p-0.5 bg-zinc-100/5 data-[hover]:bg-yellow-500/25 data-[focus]:bg-yellow-500/25 ease-out duration-75 outline-none rounded group">
             <MinusIcon className="size-4 group-data-[hover]:text-zinc-400 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-400 group-data-[focus]:scale-110 ease-out duration-75" />
           </Button>
-          <Button className="p-0.5 bg-zinc-100/5 data-[hover]:bg-zinc-100/10 data-[focus]:bg-zinc-100/10 ease-out duration-75 outline-none rounded group">
+          <Button className="p-0.5 bg-zinc-100/5 data-[hover]:bg-green-500/25 data-[focus]:bg-grenn-500/25 ease-out duration-75 outline-none rounded group">
             <Square2StackIcon
               style={{ transform: "scaleX(-1)" }}
               className="size-4 group-data-[hover]:text-zinc-400 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-400 group-data-[focus]:scale-110 ease-out duration-75"
             />
           </Button>
-          <Button className="p-0.5 bg-zinc-100/5 data-[hover]:bg-zinc-100/10 data-[focus]:bg-zinc-100/10 ease-out duration-75 outline-none rounded group">
+          <Button className="p-0.5 bg-zinc-100/5 data-[hover]:bg-red-500/25 data-[focus]:bg-red-500/25 ease-out duration-75 outline-none rounded group">
             <XMarkIcon className="size-4 group-data-[hover]:text-zinc-400 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-400 group-data-[focus]:scale-110 ease-out duration-75" />
           </Button>
         </div>
@@ -315,11 +321,15 @@ export default function FakeSpotifyPlayer() {
           </div>
         </div>
         <div className="flex items-center justify-between">
-          <Button className="p-1 outline-none relative group text-zinc-200">
+          <Button
+            aria-label="Recently played tracks"
+            className="p-1 outline-none relative group text-zinc-200"
+          >
             <RecentlyTracksIcon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
           </Button>
           <div className="flex items-center justify-center gap-1">
             <Button
+              aria-label="Toggle shuffle"
               onClick={toggleShuffle}
               className="mr-2 p-1 outline-none relative group text-zinc-400"
             >
@@ -333,12 +343,14 @@ export default function FakeSpotifyPlayer() {
               )}
             </Button>
             <Button
+              aria-label="Previous track"
               onClick={previousTrack}
               className="p-1 outline-none relative group text-zinc-300"
             >
               <BackwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
             </Button>
             <Button
+              aria-label={playerState.isPlaying ? "Pause" : "Play"}
               onClick={togglePlay}
               className="p-1 outline-none relative group text-zinc-200"
             >
@@ -349,12 +361,14 @@ export default function FakeSpotifyPlayer() {
               )}
             </Button>
             <Button
+              aria-label="Next track"
               onClick={nextTrack}
               className="p-1 outline-none relative group text-zinc-300"
             >
               <ForwardIcon className="size-6 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
             </Button>
             <Button
+              aria-label="Toggle repeat"
               onClick={toggleRepeat}
               className="ml-2 p-1 outline-none relative group text-zinc-400"
             >
@@ -369,7 +383,10 @@ export default function FakeSpotifyPlayer() {
               )}
             </Button>
           </div>
-          <Button className="p-1 outline-none relative group text-zinc-200">
+          <Button
+            aria-label="Queue"
+            className="p-1 outline-none relative group text-zinc-200"
+          >
             <QueueIcon className="size-4 group-data-[hover]:scale-110 group-data-[focus]:scale-110 transition ease-out duration-75" />
           </Button>
         </div>
