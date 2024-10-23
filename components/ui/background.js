@@ -68,7 +68,7 @@ export function DynamicBackground() {
 
     const otherColors = sortedColors
       .slice(1)
-      .sort((a, b) => b.area - a.area)
+      .sort((a, b) => b.intensity - a.intensity)
       .filter((color, index, array) => {
         if (index === array.length - 1) return true;
         const deltaE = calculateDeltaE(
@@ -79,7 +79,7 @@ export function DynamicBackground() {
             b: array[index + 1].blue,
           },
         );
-        return deltaE >= 35;
+        return deltaE >= 30;
       })
       .map((color) => color.hex);
 
