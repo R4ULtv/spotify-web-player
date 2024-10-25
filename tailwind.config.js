@@ -23,17 +23,6 @@ module.exports = {
         "5xl": "2.5rem",
         "6xl": "3rem",
       },
-      animation: {
-        float: "float 20s infinite ease-in-out",
-      },
-      keyframes: {
-        float: {
-          "0%, 100%": { transform: "translate(0, 0)" },
-          "25%": { transform: "translate(50px, 50px)" },
-          "50%": { transform: "translate(50px, -50px)" },
-          "75%": { transform: "translate(-50px, 50px)" },
-        },
-      },
     },
   },
   plugins: [],
