@@ -167,7 +167,7 @@ export default function FakeSpotifyPlayer() {
       <div className="py-1.5 px-2 absolute top-0 w-full z-10 bg-zinc-900/75 text-zinc-500">
         <div className="flex items-center gap-1">
           <div className="p-0.5 bg-zinc-100/5 hover:bg-zinc-100/10 focus:bg-zinc-100/10 ease-out duration-75 outline-none rounded group">
-            <GlowifyIcon className="size-4 text-spotify-green group-hover:text-spotify-light-green group-hover:scale-110 group-focus:text-spotify-light-green group-focus:scale-110 ease-out duration-75" />
+            <GlowifyIcon className="size-4 text-spotify-green group-hover:text-spotify-light-green group-hover:scale-110 group-hover:-scale-x-100 group-focus:text-spotify-light-green group-focus:scale-110 ease-out duration-75" />
           </div>
           <Button
             aria-label="Previous track"
