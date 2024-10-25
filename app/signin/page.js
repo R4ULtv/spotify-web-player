@@ -155,6 +155,12 @@ export default function Login() {
           </div>
         </div>
       </div>
+      <div className="flex flex-col items-center justify-between md:justify-center w-full h-full px-3 py-10 md:px-8 md:py-20 z-10 relative bg-zinc-950 border-t border-zinc-100/5">
+        <div className="text-6xl md:text-9xl font-black flex items-center justify-center bg-clip-text text-transparent bg-gradient-to-b from-zinc-700 to-zinc-500 group select-none">
+          <GlowifyIcon className="size-16 md:size-36 stroke-spotify-green group-hover:-scale-x-100 transition ease-out duration-150" />
+          GLOWIFY
+        </div>
+      </div>
     </main>
   );
 }
