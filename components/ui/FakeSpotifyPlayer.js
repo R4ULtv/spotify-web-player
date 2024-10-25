@@ -239,16 +239,25 @@ export default function FakeSpotifyPlayer() {
             </Button>
           </div>
 
-          <Button className="p-0.5 bg-zinc-100/5 data-[hover]:bg-yellow-500/25 data-[focus]:bg-yellow-500/25 ease-out duration-75 outline-none rounded group">
+          <Button
+            aria-label="Minimize"
+            className="p-0.5 bg-zinc-100/5 data-[hover]:bg-yellow-500/25 data-[focus]:bg-yellow-500/25 ease-out duration-75 outline-none rounded group"
+          >
             <MinusIcon className="size-4 group-data-[hover]:text-zinc-400 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-400 group-data-[focus]:scale-110 ease-out duration-75" />
           </Button>
-          <Button className="p-0.5 bg-zinc-100/5 data-[hover]:bg-green-500/25 data-[focus]:bg-grenn-500/25 ease-out duration-75 outline-none rounded group">
+          <Button
+            aria-label="Maximize"
+            className="p-0.5 bg-zinc-100/5 data-[hover]:bg-green-500/25 data-[focus]:bg-grenn-500/25 ease-out duration-75 outline-none rounded group"
+          >
             <Square2StackIcon
               style={{ transform: "scaleX(-1)" }}
               className="size-4 group-data-[hover]:text-zinc-400 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-400 group-data-[focus]:scale-110 ease-out duration-75"
             />
           </Button>
-          <Button className="p-0.5 bg-zinc-100/5 data-[hover]:bg-red-500/25 data-[focus]:bg-red-500/25 ease-out duration-75 outline-none rounded group">
+          <Button
+            aria-label="Close"
+            className="p-0.5 bg-zinc-100/5 data-[hover]:bg-red-500/25 data-[focus]:bg-red-500/25 ease-out duration-75 outline-none rounded group"
+          >
             <XMarkIcon className="size-4 group-data-[hover]:text-zinc-400 group-data-[hover]:scale-110 group-data-[focus]:text-zinc-400 group-data-[focus]:scale-110 ease-out duration-75" />
           </Button>
         </div>
