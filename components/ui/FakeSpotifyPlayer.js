@@ -30,6 +30,7 @@ import { GradientBackground } from "@/components/ui/background";
 import { Slider } from "@/components/ui/slider";
 import { formatTime } from "@/components/utils/hooks";
 import {
+  GlowifyIcon,
   QueueIcon,
   RecentlyTracksIcon,
   RepeatIcon,
@@ -165,6 +166,9 @@ export default function FakeSpotifyPlayer() {
     <div className="relative w-full h-auto flex gap-3 flex-col items-center justify-center md:aspect-video rounded-3xl overflow-hidden border-8 p-4 border-zinc-100/5 shadow-2xl shadow-zinc-100/5">
       <div className="py-1.5 px-2 absolute top-0 w-full z-10 bg-zinc-900/75 text-zinc-500">
         <div className="flex items-center gap-1">
+          <div className="p-0.5 bg-zinc-100/5 hover:bg-zinc-100/10 focus:bg-zinc-100/10 ease-out duration-75 outline-none rounded group">
+            <GlowifyIcon className="size-4 text-spotify-green group-hover:text-spotify-light-green group-hover:scale-110 group-focus:text-spotify-light-green group-focus:scale-110 ease-out duration-75" />
+          </div>
           <Button
             aria-label="Previous track"
             onClick={previousTrack}
