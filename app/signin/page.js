@@ -76,10 +76,10 @@ export default function Login() {
               </div>
 
               <div className="flex flex-col items-center gap-4 order-3 md:order-2 z-10">
-                <TextShimmer className="text-base md:text-xl font-bold [--base-color:theme(colors.spotify.green)] [--base-gradient-color:theme(colors.spotify.light-green)]">
+                <TextShimmer className="text-base md:text-xl font-bold text-center [--base-color:theme(colors.spotify.green)] [--base-gradient-color:theme(colors.spotify.light-green)]">
                   Establishing Connection
                 </TextShimmer>
-                <TextShimmer className="text-base md:text-xl font-bold [--base-color:theme(colors.spotify.green)] [--base-gradient-color:theme(colors.spotify.light-green)]">
+                <TextShimmer className="text-base md:text-xl font-bold text-center [--base-color:theme(colors.spotify.green)] [--base-gradient-color:theme(colors.spotify.light-green)]">
                   Synchronizing Library
                 </TextShimmer>
               </div>
@@ -127,9 +127,11 @@ export default function Login() {
             <div className="mb-8 relative w-full h-52 flex flex-col justify-between gap-3 rounded-xl overflow-hidden">
               <InfiniteSlider gap={12}>
                 {exampleTracks.map((track) => (
-                  <a key={track.name} href={track.link}>
+                  <a key={track.name} href={track.link} aria-label={track.name}>
                     <img
+                      alt={track.name}
                       src={track.album.image}
+                      loading="lazy"
                       className="size-24 rounded-xl brightness-100 hover:brightness-110 duration-75 ease-out"
                     />
                   </a>
@@ -139,7 +141,9 @@ export default function Login() {
                 {exampleTracks.map((track) => (
                   <a key={track.name} href={track.link}>
                     <img
+                      alt={track.name}
                       src={track.album.image}
+                      loading="lazy"
                       className="size-24 rounded-xl brightness-100 hover:brightness-110 duration-75 ease-out"
                     />
                   </a>
