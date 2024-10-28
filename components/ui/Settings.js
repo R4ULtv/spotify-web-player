@@ -27,8 +27,8 @@ import {
   MinusIcon,
   PlusIcon,
 } from "@heroicons/react/16/solid";
-import { useMedia } from "../providers/MediaProvider";
-import { presets } from "./background";
+import { useMedia } from "@/components/providers/MediaProvider";
+import { presets } from "@/components/ui/background";
 
 const SNAP_POINTS = [0.4, 1];
 const filters = ["intensity", "area", "lightness", "saturation"];
