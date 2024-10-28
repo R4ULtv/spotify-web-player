@@ -202,6 +202,12 @@ export default function Navigation() {
                   </kbd>
                 </Button>
                 <Button className="group flex w-full items-center justify-between gap-2 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
+                  Open Settings
+                  <kbd className="text-xs text-zinc-200 bg-zinc-500/25 px-1 py-0.5 rounded">
+                    b
+                  </kbd>
+                </Button>
+                <Button className="group flex w-full items-center justify-between gap-2 rounded-lg py-1.5 px-3 data-[hover]:bg-zinc-800/25 data-[focus]:bg-zinc-800/25">
                   Hide Toolbar
                   <kbd className="text-xs text-zinc-200 bg-zinc-500/25 px-1 py-0.5 rounded">
                     ⌘ + .

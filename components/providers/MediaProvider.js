@@ -25,11 +25,34 @@ export const MediaProvider = ({ children }) => {
   const [fullScreen, setFullScreen] = useState(false);
   const [isPortrait, setIsPortrait] = useState(false);
   const [isOpenTrackDrawer, setIsOpenTrackDrawer] = useState(false);
+  const [isOpenSettings, setIsOpenSettings] = useState(false);
   const [selectedDrawerTab, setSelectedDrawerTab] = useState(0);
   const [isOpenRotateDeviceDrawer, setIsOpenRotateDeviceDrawer] =
     useState(false);
   const [tvMode, setTvMode] = useState(false);
+  const [bgSettings, setBgSettings] = useState(null);
   const isMobile = useMediaQuery("(max-width: 1024px)");
+
+  useEffect(() => {
+    const storedBgSettings = localStorage.getItem("bgSettings");
+    if (storedBgSettings) {
+      setBgSettings(JSON.parse(storedBgSettings));
+    } else {
+      setBgSettings({
+        preset: "default",
+        colors: { type: "intensity", desc: false },
+        uSpeed: 0.1,
+        animation: true,
+        grain: true,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (bgSettings) {
+      localStorage.setItem("bgSettings", JSON.stringify(bgSettings));
+    }
+  }, [bgSettings]);
 
   // Load TV mode setting from localStorage on initial render
   useEffect(() => {
@@ -90,6 +113,10 @@ export const MediaProvider = ({ children }) => {
       if (e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) return;
 
       switch (e.key.toLowerCase()) {
+        case "b":
+          e.preventDefault();
+          setIsOpenSettings((prev) => !prev);
+          break;
         case "t":
           e.preventDefault();
           toggleTvMode();
@@ -122,10 +149,20 @@ export const MediaProvider = ({ children }) => {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [toggleFullScreen, toggleTvMode, isOpenTrackDrawer, selectedDrawerTab]);
+  }, [
+    toggleFullScreen,
+    toggleTvMode,
+    isOpenTrackDrawer,
+    selectedDrawerTab,
+    setIsOpenSettings,
+  ]);
 
   const value = useMemo(
     () => ({
+      bgSettings,
+      setBgSettings,
+      isOpenSettings,
+      setIsOpenSettings,
       isOpenTrackDrawer,
       isOpenRotateDeviceDrawer,
       isPortrait,
@@ -139,6 +176,8 @@ export const MediaProvider = ({ children }) => {
       setIsOpenRotateDeviceDrawer,
     }),
     [
+      bgSettings,
+      isOpenSettings,
       isOpenTrackDrawer,
       isOpenRotateDeviceDrawer,
       isPortrait,

@@ -7,6 +7,7 @@ import SpotifyPlayer from "@/components/ui/SpotifyPlayer";
 import Navigation from "@/components/ui/Navigation";
 import TracksDrawer from "@/components/ui/TracksDrawer";
 import RotateDeviceDrawer from "@/components/ui/RotateDeviceDrawer";
+import Settings from "@/components/ui/Settings";
 
 export default function Home() {
   return (
@@ -20,8 +21,9 @@ export default function Home() {
             <TracksDrawer />
             <RotateDeviceDrawer />
           </main>
+          <Settings />
+          <DynamicBackground />
         </MediaProvider>
-        <DynamicBackground />
       </SpotifyProvider>
     </SessionProvider>
   );
