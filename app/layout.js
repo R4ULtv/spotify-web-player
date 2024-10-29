@@ -9,7 +9,7 @@ export const metadata = {
   openGraph: {
     images: [
       {
-        url: "https://www.raulcarini.dev/api/dynamic-og?title=Spotify%20Web%20Player&description=Visualize%20your%20music%20in%20real-time%20with%20a%20batter%20experience.",
+        url: "/assets/og-image.png",
         width: 843,
         height: 441,
       },
